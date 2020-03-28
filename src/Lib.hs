@@ -1,9 +1,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Lib
-    ( from
-    , select
-    ) where
+  ( from
+  , select
+  ) where
 
 import Data.ByteString.Lazy
 import Data.Csv (decode, HasHeader(..))
