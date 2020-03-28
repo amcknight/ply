@@ -5,12 +5,12 @@ module Lib
   , select
   ) where
 
-import Data.ByteString.Lazy
+import Data.ByteString.Lazy as B
 import Data.Csv (decode, HasHeader(..))
 
 from :: String -> From
 from path = do
-  csvData <- Data.ByteString.Lazy.readFile path
+  csvData <- B.readFile path
   case decode HasHeader csvData of
     Left err -> ["BAD"]
     Right csv -> ["Good", "Stuff"]
