@@ -1,25 +1,11 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Lib
-  ( from
-  , select
+  ( rowsToMessage
   ) where
 
-import Data.ByteString.Lazy as B
-import Data.Csv (decode, HasHeader(..))
+type Row = (String, String, Int)
 
-from :: String -> From
-from path = do
-  csvData <- B.readFile path
-  case decode HasHeader csvData of
-    Left err -> ["BAD"]
-    Right csv -> ["Good", "Stuff"]
+rowsToMessage :: [(String, String, Int)] -> String
+rowsToMessage rows = unlines $ fmap rowToMessage rows
 
-
-select :: From -> Columns -> Select
-select from columns = (columns, [["YAY"]])
-
-type Columns = [String]
-type From = Columns
-type Rows = (Columns, [[String]])
-type Select = Rows
+rowToMessage :: (String, String, Int) -> String
+rowToMessage (first_name, _, age) = first_name ++ " is " ++ show age ++ " years old"
