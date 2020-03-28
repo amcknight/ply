@@ -16,6 +16,7 @@ Subject to drastic changes
 ### Beyond
 * CREATE, INSERT, and GROUP BY
 * Console to allow query building auto-completion
-* Performance
-* Streaming
+* Start thinking about performance, maybe
+* Streaming sources and sinks
+* Flexible formats beyond CSV (JSONL, Common Log Format, etc)
 * etc
