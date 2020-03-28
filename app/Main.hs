@@ -1,5 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Main where
 
 import qualified Data.ByteString.Lazy as BL

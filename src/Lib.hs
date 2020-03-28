@@ -4,8 +4,8 @@ module Lib
 
 type Row = (String, String, Int)
 
-rowsToMessage :: [(String, String, Int)] -> String
+rowsToMessage :: [Row] -> String
 rowsToMessage rows = unlines $ fmap rowToMessage rows
 
-rowToMessage :: (String, String, Int) -> String
+rowToMessage :: Row -> String
 rowToMessage (first_name, _, age) = first_name ++ " is " ++ show age ++ " years old"
