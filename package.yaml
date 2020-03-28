@@ -1,5 +1,5 @@
 name:                csvsql
-version:             0.1.0.0
+version:             0.1.0
 github:              "amcknight/csvsql"
 license:             BSD3
 author:              "Andrew McKnight"
@@ -21,6 +21,9 @@ description:         Please see the README on GitHub at <https://github.com/amck
 
 dependencies:
 - base >= 4.7 && < 5
+- bytestring
+- cassava
+- vector
 
 library:
   source-dirs: src

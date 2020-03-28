@@ -13,5 +13,22 @@
     <orderEntry type="library" name="base-4.12.0.0" level="project" />
     <orderEntry type="library" name="ghc-prim-0.5.3" level="project" />
     <orderEntry type="library" name="integer-gmp-1.0.2.0" level="project" />
+    <orderEntry type="library" name="array-0.5.3.0" level="project" />
+    <orderEntry type="library" name="bytestring-0.10.8.2" level="project" />
+    <orderEntry type="library" name="containers-0.6.0.1" level="project" />
+    <orderEntry type="library" name="deepseq-1.4.4.0" level="project" />
+    <orderEntry type="library" name="transformers-0.5.6.2" level="project" />
+    <orderEntry type="library" name="binary-0.8.6.0" level="project" />
+    <orderEntry type="library" name="cassava-0.5.2.0" level="project" />
+    <orderEntry type="library" name="Only-0.1" level="project" />
+    <orderEntry type="library" name="attoparsec-0.13.2.3" level="project" />
+    <orderEntry type="library" name="hashable-1.2.7.0" level="project" />
+    <orderEntry type="library" name="scientific-0.3.6.2" level="project" />
+    <orderEntry type="library" name="text-1.2.3.1" level="project" />
+    <orderEntry type="library" name="text-short-0.1.3" level="project" />
+    <orderEntry type="library" name="unordered-containers-0.2.10.0" level="project" />
+    <orderEntry type="library" name="vector-0.12.0.3" level="project" />
+    <orderEntry type="library" name="integer-logarithms-1.0.3" level="project" />
+    <orderEntry type="library" name="primitive-0.6.4.0" level="project" />
   </component>
 </module>
