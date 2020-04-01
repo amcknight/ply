@@ -1,4 +1,4 @@
-module Lib
+module Formatter
   ( rowsToMessage
   ) where
 
@@ -8,4 +8,4 @@ rowsToMessage :: [Row] -> String
 rowsToMessage rows = unlines $ fmap rowToMessage rows
 
 rowToMessage :: Row -> String
-rowToMessage (first_name, _, age) = first_name ++ " is " ++ show age ++ " years old"
+rowToMessage (first_name, _, age) = first_name ++ ", " ++ show age

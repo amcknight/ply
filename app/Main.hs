@@ -1,21 +1,21 @@
 module Main where
 
 import qualified Data.ByteString.Lazy as BL
-import Data.Csv
-import Data.List
-import qualified Data.Vector as V
-import Lib
+import System.Environment (getArgs)
+import QueryBuilder
+import Loader
+import Formatter
 
 main :: IO ()
---main = select ("first_name", "age")
 main = do
-  csvData <- BL.readFile "test/rsrc/people_no_header.csv"
-  putStrLn $ loadCsv csvData
+  argsStrings <- getArgs
+  let queryString = head argsStrings
+  let query = build queryString
+  csvData <- BL.readFile $ "test/rsrc/" ++ table query ++ ".csv"
 
-loadCsv :: BL.ByteString -> String
-loadCsv csvData = case decode NoHeader csvData of
-  Left err -> err
-  Right v -> rowsToMessage $ V.toList v
+  let output = case loadCsv csvData of Left err -> err
+                                       Right row -> rowsToMessage row
 
-select :: [String] -> String -> [String]
-select = undefined
+  putStrLn queryString
+  putStrLn "----"
+  putStrLn output

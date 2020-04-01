@@ -11,8 +11,8 @@ extra-source-files:
 - ChangeLog.md
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+# synopsis: Run SQL queries on raw CSVs
+# category: ?
 
 description:         Please see the README on GitHub at <https://github.com/amcknight/csvsql#readme>
 
@@ -26,7 +26,7 @@ library:
   source-dirs: src
 
 executables:
-  csvsql-exe:
+  csvsql:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
