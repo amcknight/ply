@@ -14,9 +14,17 @@ newtype From = From String
 newtype Where = Where [EqClause]
 data Query = SelectFromWhere Select From Where
 
--- TODO: Use the input param to build the query
 build :: String -> Query
-build _ = SelectFromWhere (Select [SCol "first_name", ICol "age"]) (From "people_no_header") (Where [EqCI (ICol "age") 35])
+build str = SelectFromWhere (Select [SCol "first_name", ICol "age"]) (From "people_no_header") (Where [EqCI (ICol "age") 35])
+--build str = parse $ tokenize str
+
+data Token = String
+
+tokenize :: String -> [Token]
+tokenize str = undefined
+
+parse :: [Token] -> Query
+parse tokens = undefined
 
 table :: Query -> String
 table (SelectFromWhere _ (From t) _) = t

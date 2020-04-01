@@ -1,19 +1,21 @@
 module Main where
 
 import qualified Data.ByteString.Lazy as BL
+import System.Environment (getArgs)
 import QueryBuilder
 import Loader
-import Printer
+import Formatter
 
 main :: IO ()
 main = do
-  let queryString = "\
-    \SELECT first_name, age\n\
-    \FROM people\n\
-    \WHERE age = 35"
-  putStrLn queryString
-  putStrLn "----"
+  argsStrings <- getArgs
+  let queryString = head argsStrings
   let query = build queryString
   csvData <- BL.readFile $ "test/rsrc/" ++ table query ++ ".csv"
-  putStrLn $ case loadCsv csvData of Left err -> err
-                                     Right row -> rowsToMessage row
+
+  let output = case loadCsv csvData of Left err -> err
+                                       Right row -> rowsToMessage row
+
+  putStrLn queryString
+  putStrLn "----"
+  putStrLn output

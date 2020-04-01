@@ -1,4 +1,4 @@
-module Printer
+module Formatter
   ( rowsToMessage
   ) where
 
