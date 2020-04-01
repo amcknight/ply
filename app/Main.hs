@@ -5,11 +5,17 @@ import Data.Csv
 import Data.List
 import qualified Data.Vector as V
 import Lib
+import QueryBuilder
 
 main :: IO ()
---main = select ("first_name", "age")
 main = do
-  csvData <- BL.readFile "test/rsrc/people_no_header.csv"
+-- TODO: Read query from CLI
+-- Parse the query into tokens or directly to an SQL query representation or emit errors if ill-formatted
+  let q = build "SELECT first_name, age FROM people WHERE age = 35"
+-- Validate the structure or emit errors if ill-formatted
+--  from "people" $ where [EqClause "age", 35] $ select [As "first_name" "name", "age"]
+-- Read the file row by row, emitting answer rows
+  csvData <- BL.readFile $ "test/rsrc/" ++ "people_no_header" ++ ".csv"
   putStrLn $ loadCsv csvData
 
 loadCsv :: BL.ByteString -> String
