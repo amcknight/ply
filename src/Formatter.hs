@@ -1,11 +1,11 @@
 module Formatter
-  ( rowsToMessage
+  ( toMsgs
   ) where
 
 type Row = (String, String, Int)
 
-rowsToMessage :: [Row] -> String
-rowsToMessage rows = unlines $ fmap rowToMessage rows
+toMsgs :: [Row] -> String
+toMsgs rows = unlines $ fmap toMsg rows
 
-rowToMessage :: Row -> String
-rowToMessage (first_name, _, age) = first_name ++ ", " ++ show age
+toMsg :: Row -> String
+toMsg (first_name, _, age) = first_name ++ ", " ++ show age
