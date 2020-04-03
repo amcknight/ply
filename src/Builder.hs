@@ -1,4 +1,4 @@
-module QueryBuilder
+module Builder
   ( build
   ) where
 

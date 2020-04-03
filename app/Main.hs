@@ -2,9 +2,10 @@ module Main where
 
 import qualified Data.ByteString.Lazy as BL (readFile)
 import System.Environment (getArgs)
-import QueryBuilder (build)
+import Builder (build)
 import Loader (loadCsv)
 import Formatter (toMsgs)
+import Runner (run)
 import Query (table)
 
 main :: IO ()
@@ -15,7 +16,7 @@ main = do
   csvData <- BL.readFile $ "test/rsrc/" ++ table query ++ ".csv"
 
   let output = case loadCsv csvData of Left err -> err
-                                       Right row -> toMsgs row
+                                       Right rows -> toMsgs $ run query rows
 
   putStrLn queryString
   putStrLn "----"

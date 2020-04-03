@@ -2,10 +2,10 @@ module Formatter
   ( toMsgs
   ) where
 
-type Row = (String, String, Int)
+import Data.List (intercalate)
 
-toMsgs :: [Row] -> String
-toMsgs rows = unlines $ fmap toMsg rows
+toMsgs :: [[String]] -> String
+toMsgs elems = unlines $ fmap toMsg elems
 
-toMsg :: Row -> String
-toMsg (first_name, _, age) = first_name ++ ", " ++ show age
+toMsg :: [String] -> String
+toMsg = intercalate ", "
