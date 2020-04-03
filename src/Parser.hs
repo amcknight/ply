@@ -12,7 +12,6 @@ instance Exception QueryException
 
 parse :: [T.Token] -> Q.Query
 parse tokens = case splitOneOf [T.Select, T.From, T.Where] tokens of
---  x -> throw $ ParseException $ show x
   ([]:[s, f, w]) -> Q.SelectFromWhere (parseSelect s) (parseFrom f) (parseWhere w)
   _ -> throw $ ParseException $ "Couldn't parse: " ++ show tokens
 

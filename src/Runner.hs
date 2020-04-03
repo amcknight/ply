@@ -2,12 +2,16 @@ module Runner
   ( run
   ) where
 
+import qualified Data.Map.Strict as M
 import Query as Q
+import Element as E
 
-type Row = (String, String, Int)
-
-run :: Q.Query -> [Row] -> [[String]]
+run :: Q.Query -> [E.Row] -> [E.Row]
 run (Q.SelectFromWhere (Q.Select ss) _ _) = fmap (select ss)
 
-select :: [Q.Col] -> Row -> [String]
-select selections (firstName, lastName, age) = [firstName, show age] -- TODO: Actually use the column selections
+-- Query Select Columns -> CSV Row -> Selected CSV Row
+select :: [Q.Col] -> E.Row -> E.Row
+select cols = M.filterWithKey (inCols cols)
+
+inCols :: [Q.Col] -> String -> E.Elem -> Bool
+inCols selectionCols csvColName _ = csvColName `elem` fmap Q.colName selectionCols
