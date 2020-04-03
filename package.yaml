@@ -21,6 +21,7 @@ dependencies:
 - bytestring
 - cassava
 - vector
+- split
 
 library:
   source-dirs: src
