@@ -2,10 +2,15 @@ module Formatter
   ( toMsgs
   ) where
 
-import Data.List (intercalate)
+import Element as E
+import qualified Data.Map as M (foldr)
 
-toMsgs :: [[String]] -> String
+toMsgs :: [E.Row] -> String
 toMsgs elems = unlines $ fmap toMsg elems
 
-toMsg :: [String] -> String
-toMsg = intercalate ", "
+toMsg :: E.Row -> String
+toMsg = M.foldr convert ""
+
+convert :: Elem -> String -> String
+convert (E.SElem s) = ((s ++ ", ") ++)
+convert (E.IElem i) = ((show i ++ ", ") ++)

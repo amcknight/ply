@@ -18,6 +18,6 @@ main = do
   let output = case loadCsv csvData of Left err -> err
                                        Right rows -> toMsgs $ run query rows
 
-  putStrLn queryString
+  print query
   putStrLn "----"
   putStrLn output
