@@ -6,7 +6,7 @@ import Element as E
 import qualified Data.Map as M (foldr)
 
 toMsgs :: [E.Row] -> String
-toMsgs elems = unlines $ fmap toMsg elems
+toMsgs = unlines . fmap toMsg
 
 toMsg :: E.Row -> String
 toMsg = M.foldr convert ""

@@ -19,7 +19,7 @@ parseSelect :: [T.Token] -> Q.Select
 parseSelect [] = throw $ ParseException "No SELECT columns given"
 parseSelect ts =
   if all T.isName ts
-    then Q.Select $ fmap str ts
+    then Q.Select $ fmap untokenize ts
     else throw $ ParseException $ "All SELECT tokens should be column names but " ++ show ts ++ " was given"
 
 parseFrom :: [T.Token] -> Q.From
@@ -30,4 +30,3 @@ parseFrom ts = throw $ ParseException $ "FROM statement currently only accepts o
 
 parseWhere :: [T.Token] -> Q.Where
 parseWhere [] = Q.Where
-parseWhere _ = undefined -- TODO: Define
