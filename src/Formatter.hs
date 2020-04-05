@@ -12,5 +12,5 @@ toMsg :: E.Row -> String
 toMsg = M.foldr convert ""
 
 convert :: Elem -> String -> String
-convert (E.SElem s) = ((s ++ ", ") ++)
-convert (E.IElem i) = ((show i ++ ", ") ++)
+convert (E.SElem s) = (("|" ++ s ++ "|") ++)
+convert (E.IElem i) = (("|" ++ show i ++ "|") ++)

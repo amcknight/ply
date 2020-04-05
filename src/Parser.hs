@@ -19,15 +19,15 @@ parseSelect :: [T.Token] -> Q.Select
 parseSelect [] = throw $ ParseException "No SELECT columns given"
 parseSelect ts =
   if all T.isName ts
-    then Q.Select $ fmap (Q.SCol . str) ts
+    then Q.Select $ fmap str ts
     else throw $ ParseException $ "All SELECT tokens should be column names but " ++ show ts ++ " was given"
 
 parseFrom :: [T.Token] -> Q.From
 parseFrom [] = throw $ ParseException "No FROM table given"
-parseFrom [T.Name name] = Q.From name [Q.SCol "first_name", Q.SCol "last_name", Q.ICol "age"] -- TODO: Get rid of this hardcoding
+parseFrom [T.Name name] = Q.From name
 parseFrom [t] = throw $ ParseException $ "FROM statement only accepts names but a " ++ show t ++ " was given"
 parseFrom ts = throw $ ParseException $ "FROM statement currently only accepts one name, but " ++ show ts ++ "was given"
 
 parseWhere :: [T.Token] -> Q.Where
-parseWhere [] = Q.Where []
+parseWhere [] = Q.Where
 parseWhere _ = undefined -- TODO: Define
