@@ -10,10 +10,10 @@ module Query
 
 type Col = String
 type Table = String
-newtype Select = Select [Col] deriving Show
-newtype From = From Table deriving Show
-data Where = Where deriving Show
-data Query = SelectFromWhere Select From Where deriving Show
+newtype Select = Select [Col] deriving (Show, Eq)
+newtype From = From Table deriving (Show, Eq)
+data Where = Where deriving (Show, Eq)
+data Query = SelectFromWhere Select From Where deriving (Show, Eq)
 
 selection :: Query -> [Col]
 selection (SelectFromWhere (Select ss) _ _) = ss
