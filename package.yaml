@@ -48,3 +48,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - csvsql
+    - HUnit

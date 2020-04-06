@@ -31,5 +31,7 @@
     <orderEntry type="library" name="binary-0.8.6.0" level="project" />
     <orderEntry type="library" name="vector-0.12.1.2" level="project" />
     <orderEntry type="library" name="split-0.2.3.3" level="project" />
+    <orderEntry type="library" name="HUnit-1.6.0.0" level="project" />
+    <orderEntry type="library" name="call-stack-0.1.0" level="project" />
   </component>
 </module>

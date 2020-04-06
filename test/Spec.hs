@@ -1,2 +1,6 @@
+
+import Test.HUnit.Text (runTestTT)
+--import Tokenizer.Tests (test1)
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = undefined --defaultMain $ runTestTT $ TestList [TestLabel "test1" test1]

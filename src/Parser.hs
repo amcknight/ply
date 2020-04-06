@@ -30,3 +30,4 @@ parseFrom ts = throw $ ParseException $ "FROM statement currently only accepts o
 
 parseWhere :: [T.Token] -> Q.Where
 parseWhere [] = Q.Where
+parseWhere _ = undefined
