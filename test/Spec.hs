@@ -12,5 +12,5 @@ tests = testGroup "Unit tests"
   ]
 
 tokenizeSimpleQuery = assertEqual ""
-  (T.tokenize "SELECT age FROM ages WHERE")
-  [T.Select, T.Name "age", T.From, T.Name "ages", T.Where]
+  (T.tokenize "SELECT age FROM ages WHERE age = 35")
+  [T.Select, T.Name "age", T.From, T.Name "ages", T.Where, T.Name "age", T.Name "=", T.Name "35"]
