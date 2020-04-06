@@ -13,7 +13,7 @@ main :: IO ()
 main = do
   argsStrings <- getArgs
   let query = parse . tokenize $ head argsStrings
-  csvData <- BL.readFile $ "test/rsrc/" ++ table query ++ ".csv"
+  csvData <- BL.readFile $ "test/fixtures/" ++ table query ++ ".csv"
 
   let output = case loadCsv csvData of Left err -> err
                                        Right rows -> toMsgs $ run query rows
