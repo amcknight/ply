@@ -6,7 +6,6 @@ import qualified Data.ByteString.Lazy as BL
 import qualified Data.Vector as V
 import Data.Csv (decode, HasHeader(..))
 import Data.Map as M (fromList)
-import Data.Maybe (fromMaybe)
 import Data.List (dropWhileEnd)
 import Data.Char (isSpace)
 import Text.Read (readMaybe)
@@ -19,6 +18,7 @@ loadCsv csvData =
     Right recs -> Right $ extract $ deepToList recs
 
 extract :: [[String]] -> [E.Row]
+extract [] = []
 extract (colNames:recs) = extractRows (fmap trim colNames) recs
 
 -- Csv Column Names -> Csv Row values -> Output Rows

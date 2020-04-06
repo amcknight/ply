@@ -3,7 +3,7 @@ module Query
   , Select(..)
   , From(..)
   , Where(..)
-  , Col(..)
+  , Col
   , selection
   , table
   ) where

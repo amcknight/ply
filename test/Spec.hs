@@ -1,6 +1,9 @@
 
-import Test.HUnit.Text (runTestTT)
---import Tokenizer.Tests (test1)
+import Test.Tasty
+import Test.Tasty.HUnit
 
 main :: IO ()
-main = undefined --defaultMain $ runTestTT $ TestList [TestLabel "test1" test1]
+main = defaultMain tests
+
+tests :: TestTree
+tests = testGroup "Unit tests" [ testCase "List comparison (different length)" $ [1, 2, 3] `compare` [1,2,3] ]
