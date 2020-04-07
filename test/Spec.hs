@@ -18,6 +18,7 @@ tests = testGroup "Unit tests"
   , testCase "Parse simple tokens" parseSimpleTokens
   , testCase "Build a simple query" buildSimpleQuery
   , testCase "Run a simple query" runSimpleQuery
+  , testCase "Run a simple query with reversed selection order" runSimpleQueryReversed
   ]
 
 tokenizeSimpleQuery :: Assertion
@@ -39,3 +40,8 @@ runSimpleQuery :: Assertion
 runSimpleQuery = assertEqual ""
   "Andrew | 35\nTom | 36\n"
   (runQuery (Q.SelectFromWhere (Q.Select ["first_name", "age"]) (Q.From "ages") Q.Where) (BLU.fromString "first_name, last_name, age\nAndrew, McKnight, 35\nTom, Ash, 36\n"))
+
+runSimpleQueryReversed :: Assertion
+runSimpleQueryReversed = assertEqual ""
+  "35 | Andrew\n36 | Tom\n"
+  (runQuery (Q.SelectFromWhere (Q.Select ["age", "first_name"]) (Q.From "ages") Q.Where) (BLU.fromString "first_name, last_name, age\nAndrew, McKnight, 35\nTom, Ash, 36\n"))

@@ -26,13 +26,14 @@ extractRows = fmap . extractOne
 
 -- Csv Column Names -> Csv Row values -> Output Row
 extractOne :: [Text] -> [Text] -> E.Row
-extractOne colNames = M.fromList . zip colNames . fmap toElem
+extractOne colNames = M.fromList . zip colNames . fmap (toElem . strip)
 
 deepToList :: V.Vector (V.Vector a) -> [[a]]
 deepToList = V.toList . fmap V.toList
 
 -- Ultimately this should be a proper value parser
 toElem :: Text -> Elem
-toElem s = case decimal s of
-  Left _ -> E.SElem s
-  Right (i, _) -> E.IElem i
+toElem s =
+  case decimal s of
+    Left _ -> E.SElem $ pack "\"" <> s <> pack "\""
+    Right (i, _) -> E.IElem i

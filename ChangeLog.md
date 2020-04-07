@@ -1,3 +1,22 @@
 # Changelog for csvsql
 
-## Unreleased changes
+### v0.0.2
+
+* Unit tests exist
+* A limited form of SELECT ... FROM queries work
+  * The output column order is indeterminate
+  * When selecting the same column twice, it only displays once
+  * Must include an empty WHERE at the end of the query
+  * Query considers commas to be part of the name
+  * Separate column names by spaces
+  * Only a single FROM table can be listed
+  * Ints and String can be pulled from tables
+  * But rows are not guaranteed to have the same type for elements in the same column
+* Checks only one specific directory for files
+* Values can't be escaped or quoted in any way to add spaces to values
+* Table Loader is relatively untested and brittle
+
+### v0.0.1
+
+* Initial commits
+* Doesn't work at all

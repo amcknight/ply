@@ -1,10 +1,10 @@
 # csvsql
-A tool for running SQL queries on CSVs and other delimited row data.
+A tool for running SQL queries on CSVs
 
 ## Roadmap
 Subject to drastic changes
-### v0.0.2
-* A CLI that runs SQL using SELECT and FROM, without cheating
+
+Currently on v0.0.2
 ### v0.1
 * A CLI that runs SQL using SELECT, FROM, and WHERE
 * single table FROM
