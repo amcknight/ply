@@ -13,6 +13,7 @@ tests :: TestTree
 tests = testGroup "Unit tests"
   [ testCase "Tokenizes simple query" tokenizeSimpleQuery
   , testCase "Parse simple tokens" parseSimpleTokens
+  , testCase "End to end" endToEnd
   ]
 
 tokenizeSimpleQuery = assertEqual ""
@@ -22,3 +23,6 @@ tokenizeSimpleQuery = assertEqual ""
 parseSimpleTokens = assertEqual ""
   (P.parse [T.Select, T.Name "age", T.From, T.Name "ages", T.Where])
   (Q.SelectFromWhere (Q.Select ["age"]) (Q.From "ages") Q.Where)
+
+endToEnd = assertEqual ""
+  () ()

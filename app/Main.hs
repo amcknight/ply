@@ -1,26 +1,20 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Main where
 
-import qualified Data.ByteString.Lazy as BL (readFile)
+import Data.ByteString.Lazy as BL (ByteString, readFile)
 import System.Environment (getArgs)
-import Tokenizer (tokenize)
-import Parser (parse)
-import Loader (loadCsv)
-import Formatter (toMsgs)
-import Runner (run)
-import Query (table)
-import Data.Text (pack, unpack)
+import CsvSql (buildQuery, csvPath, runQuery)
+import Query (Query)
+import Data.Text (Text, pack, unpack)
 
 main :: IO ()
 main = do
   argsStrings <- getArgs
-  let query = parse . tokenize $ pack $ head argsStrings
-  csvData <- BL.readFile $ unpack $ "test/fixtures/" <> table query <> ".csv"
+  let query = buildQuery $ queryTextFromOpts argsStrings
+  csvData <- csv query
+  print $ runQuery query csvData
 
-  let output = case loadCsv csvData of Left err -> err
-                                       Right rows -> toMsgs $ run query rows
+queryTextFromOpts :: [String] -> Text
+queryTextFromOpts = pack . head
 
-  print query
-  putStrLn "----"
-  putStrLn $ unpack output
+csv :: Query -> IO ByteString
+csv = BL.readFile . unpack . csvPath
