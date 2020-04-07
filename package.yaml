@@ -1,10 +1,10 @@
 name:                csvsql
-version:             0.0.1
+version:             0.0.2
 github:              "amcknight/csvsql"
 license:             BSD3
 author:              "Andrew McKnight"
 maintainer:          "thedonk@gmail.com"
-copyright:           "2019 Andrew McKnight"
+copyright:           "2019-2020 Andrew McKnight"
 
 extra-source-files:
 - README.md
