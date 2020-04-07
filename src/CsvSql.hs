@@ -11,7 +11,7 @@ import Query (Query, table)
 import Data.Text (Text)
 import Parser (parse)
 import Tokenizer (tokenize)
-import Formatter (toMsgs)
+import Formatter (toMsg)
 import Loader (loadCsv)
 import Runner (run)
 
@@ -21,8 +21,8 @@ buildQuery = parse . tokenize
 csvPath :: Query -> Text
 csvPath query = "test/fixtures/" <> table query <> ".csv"
 
-runQuery :: Query -> ByteString -> Text
+runQuery :: Query -> ByteString -> [Text]
 runQuery query csvData =
   case loadCsv csvData of
-    Left err -> err
-    Right rows -> toMsgs $ run query rows
+    Left err -> [err]
+    Right rows -> (fmap toMsg . run query) rows
