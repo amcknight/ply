@@ -10,4 +10,4 @@ main = do
   argsStrings <- getArgs
   let query = (buildQuery . pack . head) argsStrings
   csvData <- (BL.readFile . unpack . csvPath) query
-  (putStr . unpack . T.unlines . runQuery query) csvData
+  (putStr . unpack . runQuery query) csvData

@@ -49,5 +49,6 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - csvsql
+    - utf8-string
     - tasty
     - tasty-hunit
