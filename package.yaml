@@ -23,6 +23,7 @@ dependencies:
 - vector
 - split
 - containers
+- text
 
 library:
   source-dirs: src

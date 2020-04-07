@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Tokenizer
   ( tokenize
   , untokenize
@@ -5,23 +7,21 @@ module Tokenizer
   , Token(..)
   ) where
 
-import Data.Char (toLower)
+--import Data.Char (toLower)
+import Data.Text as T (Text, toLower, words)
 
-data Token = Select | From | Where | Name String deriving (Eq, Show)
+data Token = Select | From | Where | Name Text deriving (Eq, Show)
 
-tokenize :: String -> [Token]
-tokenize = fmap (lexize . downcase) . words
+tokenize :: Text -> [Token]
+tokenize = fmap (lexize . toLower) . T.words
 
-lexize :: String -> Token
+lexize :: Text -> Token
 lexize "select" = Select
 lexize "from" = From
 lexize "where" = Where
 lexize s = Name s
 
-downcase :: String -> String
-downcase = fmap toLower
-
-untokenize :: Token -> String
+untokenize :: Token -> Text
 untokenize Select = "SELECT"
 untokenize From = "FROM"
 untokenize Where = "WHERE"
