@@ -1,5 +1,1 @@
 resolver: lts-14.27
-
-extra-deps:
-  - git: https://github.com/amcknight/codecov-haskell.git
-    commit: 53667bcdf2324c2ff5871b076c398ce77477c6ca
