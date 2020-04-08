@@ -6,11 +6,11 @@ module Formatter
 
 import Element (Row, Elem(..))
 import Data.Text as T (Text, pack, intercalate)
-import Data.Map (elems)
+import Data.Map.Ordered (assocs)
 
 toMsg :: Row -> Text
-toMsg = intercalate " | " . fmap convert . elems
+toMsg = intercalate " | " . fmap (convert . snd) . assocs
 
 convert :: Elem -> Text
 convert (SElem s) = s
-convert (IElem i) = pack (show i)
+convert (IElem i) = pack $ show i

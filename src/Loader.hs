@@ -2,38 +2,38 @@ module Loader
   ( loadCsv
   ) where
 
-import qualified Data.ByteString.Lazy as BL
-import qualified Data.Vector as V
+import Data.ByteString.Lazy (ByteString)
+import Data.Vector (Vector, toList)
+import Data.Map.Ordered (fromList)
 import Data.Csv (decode, HasHeader(..))
 import Data.Text (Text, pack, strip)
 import Data.Text.Read (decimal)
-import Data.Map as M (fromList)
-import Element as E
+import Element (Row, Elem(..))
 
-loadCsv :: BL.ByteString -> Either Text [E.Row]
+loadCsv :: ByteString -> Either Text [Row]
 loadCsv csvData =
   case decode NoHeader csvData of
     Left err -> Left $ pack err
     Right recs -> Right $ extract $ deepToList recs
 
-extract :: [[Text]] -> [E.Row]
+extract :: [[Text]] -> [Row]
 extract [] = []
 extract (colNames:recs) = extractRows (fmap strip colNames) recs
 
 -- Csv Column Names -> Csv Row values -> Output Rows
-extractRows :: [Text] -> [[Text]] -> [E.Row]
-extractRows = fmap . extractOne
+extractRows :: [Text] -> [[Text]] -> [Row]
+extractRows = fmap . extractRow
 
 -- Csv Column Names -> Csv Row values -> Output Row
-extractOne :: [Text] -> [Text] -> E.Row
-extractOne colNames = M.fromList . zip colNames . fmap (toElem . strip)
+extractRow :: [Text] -> [Text] -> Row
+extractRow colNames = fromList . zip colNames . fmap (toElem . strip)
 
-deepToList :: V.Vector (V.Vector a) -> [[a]]
-deepToList = V.toList . fmap V.toList
+deepToList :: Vector (Vector a) -> [[a]]
+deepToList = toList . fmap toList
 
 -- Ultimately this should be a proper value parser
 toElem :: Text -> Elem
 toElem s =
   case decimal s of
-    Left _ -> E.SElem $ pack "\"" <> s <> pack "\""
-    Right (i, _) -> E.IElem i
+    Left _ -> SElem s
+    Right (i, _) -> IElem i

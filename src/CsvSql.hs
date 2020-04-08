@@ -11,9 +11,9 @@ import Data.Text as T (Text, unlines)
 import Query (Query, table)
 import Parser (parse)
 import Tokenizer (tokenize)
-import Formatter (toMsg)
 import Loader (loadCsv)
 import Runner (run)
+import Formatter (toMsg)
 
 buildQuery :: Text -> Query
 buildQuery = parse . tokenize

@@ -4,8 +4,8 @@ module Element
   ) where
 
 import Data.Text (Text)
-import qualified Data.Map.Strict as M
+import Data.Map.Ordered (OMap)
 
-data Elem = SElem Text | IElem Int deriving Show
+data Elem = SElem Text | IElem Int deriving (Eq, Show)
 
-type Row = M.Map Text Elem
+type Row = OMap Text Elem

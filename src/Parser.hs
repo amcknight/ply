@@ -4,18 +4,16 @@ module Parser
   ( parse
   ) where
 
-import Tokenizer as T
-import Query as Q
-import Control.Exception.Base (Exception, throw)
+import Tokenizer as T (Token(..), isName, untokenize)
+import Query as Q (Query(..), Select(..), From(..), Where(..))
+import Control.Exception.Base (throw)
 import Data.List.Split (splitOneOf)
-import Data.Text as DT (Text, pack)
+import Data.Text as DT (pack)
+import QueryException (QueryException(..))
 
-newtype QueryException = ParseException Text deriving Show
-instance Exception QueryException
-
-parse :: [T.Token] -> Q.Query
+parse :: [Token] -> Q.Query
 parse tokens = case splitOneOf [T.Select, T.From, T.Where] tokens of
-  ([]:[s, f, w]) -> Q.SelectFromWhere (parseSelect s) (parseFrom f) (parseWhere w)
+  ([]:[s, f, w]) -> SelectFromWhere (parseSelect s) (parseFrom f) (parseWhere w)
   _ -> throw $ ParseException $ "Couldn't parse: " <> pack (show tokens)
 
 parseSelect :: [T.Token] -> Q.Select

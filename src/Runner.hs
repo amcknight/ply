@@ -1,15 +1,34 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Runner
   ( run
   ) where
 
-import qualified Data.Map as M
-import Query as Q
-import Element as E
+import Query (Query, Col, selection)
+import Element (Row, Elem(..))
+import QueryException (QueryException(..))
+import Data.Map.Ordered as DMO (lookup, fromList)
+import Control.Exception.Base (throw)
+
+newtype MissingColumn = MissingColumn Col
 
 -- Query -> CSV Rows -> Output Row
-run :: Q.Query -> [E.Row] -> [E.Row]
-run = fmap . select . Q.selection
+run :: Query -> [Row] -> [Row]
+run = fmap . select . selection
 
 -- Query Select Columns -> CSV Row -> Selected CSV Row
-select :: [Q.Col] -> E.Row -> E.Row
-select selections = M.fromList . filter (\(k, _) -> k `elem` selections) . M.toList
+select :: [Col] -> Row -> Row
+select selections csvRow =
+  case selectElems selections csvRow of
+    Left (MissingColumn c) -> throw $ MissingColumnsException $ "Table was missing column " <> c
+    Right elems -> DMO.fromList $ zip selections elems
+
+selectElems :: [Col] -> Row -> Either MissingColumn [Elem]
+selectElems selections csvRow = mapM (toElem csvRow) selections -- TODO: Combine the MissingColumns
+
+-- CSV Row -> Column name -> Element
+toElem :: Row -> Col -> Either MissingColumn Elem
+toElem csvRow c =
+  case DMO.lookup c csvRow of
+    Nothing -> Left $ MissingColumn c
+    Just e -> Right e
