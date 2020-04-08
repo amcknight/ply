@@ -3,7 +3,21 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    cabal-file:
+      size: 2598
+      sha256: 7752cb9498c46528e2acb946cacd744df05cf206ebefffb5211d578528ad11c2
+    name: codecov-haskell
+    version: 0.5.0
+    git: https://github.com/amcknight/codecov-haskell.git
+    pantry-tree:
+      size: 1353
+      sha256: 1b5f63e058d58e5293ba0ccd8522c544bbb6887c6be54e74f3b0d19fd147f45e
+    commit: 53667bcdf2324c2ff5871b076c398ce77477c6ca
+  original:
+    git: https://github.com/amcknight/codecov-haskell.git
+    commit: 53667bcdf2324c2ff5871b076c398ce77477c6ca
 snapshots:
 - completed:
     size: 524996
