@@ -30,6 +30,3 @@ jobs:
 
     - name: Stack Test
       run: stack test --coverage
-
-    - name: Codecov
-      uses: codecov/codecov-action@v1.0.6
