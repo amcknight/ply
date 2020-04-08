@@ -12,7 +12,7 @@ import Control.Exception.Base (throw)
 
 newtype MissingColumn = MissingColumn Col
 
--- Query -> CSV Rows -> Output Row
+-- Query -> CSV Rows -> Output Row TODO: This is insane nonsense
 run :: Query -> [Row] -> [Row]
 run = fmap . select . selection
 
