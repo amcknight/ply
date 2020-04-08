@@ -25,5 +25,11 @@ jobs:
     - name: Setup Stack
       uses: mstksg/setup-stack@v2
 
+    - name: Stack Initialize
+    - run: stack init
+
+    - name: Stack Build
+    - run: stack build
+
     - name: Stack Test
       run: stack test
