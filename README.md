@@ -1,3 +1,5 @@
+![Stack Test CI](https://github.com/amcknight/csvsql/workflows/Stack%20Test%20CI/badge.svg)
+
 # csvsql
 A tool for running SQL queries on CSVs
 
