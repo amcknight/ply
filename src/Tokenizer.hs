@@ -13,13 +13,14 @@ import Data.Text as T (Text, toLower, words)
 data Token = Select | From | Where | Name Text deriving (Eq, Show)
 
 tokenize :: Text -> [Token]
-tokenize = fmap (lexize . toLower) . T.words
+tokenize = fmap lexize . T.words
 
 lexize :: Text -> Token
-lexize "select" = Select
-lexize "from" = From
-lexize "where" = Where
-lexize s = Name s
+lexize s
+  | toLower s == "select" = Select
+  | toLower s == "from" = From
+  | toLower s == "where" = Where
+  | otherwise = Name s
 
 untokenize :: Token -> Text
 untokenize Select = "SELECT"
