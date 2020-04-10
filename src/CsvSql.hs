@@ -7,7 +7,7 @@ module CsvSql
   ) where
 
 import Data.ByteString.Lazy (ByteString)
-import Data.Text as T (Text, unlines)
+import Data.Text as T (Text, unlines, takeEnd)
 import Query (Query, table)
 import Parser (parse)
 import Tokenizer (tokenize)
@@ -19,7 +19,11 @@ buildQuery :: Text -> Query
 buildQuery = parse . tokenize
 
 csvPath :: Query -> Text
-csvPath query = "test/fixtures/" <> table query <> ".csv"
+csvPath query =
+  if takeEnd 4 fromPath == ".csv"
+    then fromPath
+    else fromPath <> ".csv"
+  where fromPath = table query
 
 runQuery :: Query -> ByteString -> Text
 runQuery query csvData =
