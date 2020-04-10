@@ -20,10 +20,11 @@ buildQuery = parse . tokenize
 
 csvPath :: Query -> Text
 csvPath query =
-  if takeEnd 4 fromPath == ".csv"
+  if takeEnd 4 fromPath == csvExtension
     then fromPath
-    else fromPath <> ".csv"
+    else fromPath <> csvExtension
   where fromPath = table query
+        csvExtension = ".csv"
 
 runQuery :: Query -> ByteString -> Text
 runQuery query csvData =
