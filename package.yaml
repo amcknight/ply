@@ -24,6 +24,7 @@ dependencies:
 - split
 - ordered-containers
 - text
+- megaparsec
 
 library:
   source-dirs: src
