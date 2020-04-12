@@ -2,6 +2,7 @@
 module Parser where
 
 import qualified Query as Q
+import Expression (BExp)
 import Data.Text (Text, pack)
 import Data.Void
 import Text.Megaparsec hiding (State)
@@ -17,11 +18,6 @@ parse query =
 
 pQuery :: Parser Q.Query
 pQuery = Q.Query <$> pSelect <*> pFrom <*> pWhere <* eof
---pQuery = do
---  s <- pSelect
---  f <- pFrom
---  w <- pWhere
---  return $ Q.Query s f w
 
 pSelect :: Parser Q.Select
 pSelect = do
@@ -60,4 +56,10 @@ pFrom = do
 pWhere :: Parser Q.Where
 pWhere = do
   _ <- string' "WHERE"
-  return Q.Where
+  _ <- space1
+  Q.Where <$> pBoolExp
+
+pBoolExp :: Parser BExp
+pBoolExp = undefined
+
+
