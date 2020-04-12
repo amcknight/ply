@@ -1,13 +1,24 @@
 module Main where
 
-import Data.ByteString.Lazy as BL (readFile)
+import Data.ByteString.Lazy as B (ByteString, readFile)
 import System.Environment (getArgs)
-import CsvSql (buildQuery, csvPath, runQuery)
-import Data.Text as T (pack, unpack)
+import CsvSql (csvPath, runQuery)
+import Data.Text (pack, unpack)
+import Parser (parse)
+import Query (Query)
 
 main :: IO ()
 main = do
   argsStrings <- getArgs
-  let query = (buildQuery . pack . head) argsStrings
-  csvData <- (BL.readFile . unpack . csvPath) query
+  let input = (pack . head) argsStrings
+  case parse input of
+    Left errorStr -> putStr $ unpack errorStr
+    Right query -> process query
+
+process :: Query -> IO ()
+process query = do
+  csvData <- readTable query
   (putStr . unpack . runQuery query) csvData
+
+readTable :: Query -> IO ByteString
+readTable = B.readFile . unpack . csvPath

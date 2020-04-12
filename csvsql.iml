@@ -56,5 +56,8 @@
     <orderEntry type="library" name="filepath-1.4.2.1" level="project" />
     <orderEntry type="library" name="ghc-boot-th-8.6.5" level="project" />
     <orderEntry type="library" name="pretty-1.1.3.6" level="project" />
+    <orderEntry type="library" name="megaparsec-7.0.5" level="project" />
+    <orderEntry type="library" name="case-insensitive-1.2.0.11" level="project" />
+    <orderEntry type="library" name="parser-combinators-1.1.0" level="project" />
   </component>
 </module>

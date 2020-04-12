@@ -1,5 +1,5 @@
 name:                csvsql
-version:             0.0.2.1
+version:             0.0.3
 github:              "amcknight/csvsql"
 license:             BSD3
 author:              "Andrew McKnight"
@@ -24,6 +24,7 @@ dependencies:
 - split
 - ordered-containers
 - text
+- megaparsec
 
 library:
   source-dirs: src

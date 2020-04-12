@@ -4,6 +4,7 @@ module Query
   , From(..)
   , Where(..)
   , Col
+  , Table
   , selection
   , table
   ) where
@@ -11,14 +12,21 @@ module Query
 import Data.Text (Text)
 
 type Col = Text
-type Table = Text
 newtype Select = Select [Col] deriving (Show, Eq)
+
+type Table = Text
 newtype From = From Table deriving (Show, Eq)
+
 data Where = Where deriving (Show, Eq)
-data Query = SelectFromWhere Select From Where deriving (Show, Eq)
+
+data Query = Query
+  { select :: Select
+  , from :: From
+  , whereCl :: Where
+  } deriving (Show, Eq)
 
 selection :: Query -> [Col]
-selection (SelectFromWhere (Select ss) _ _) = ss
+selection (Query (Select ss) _ _) = ss
 
 table :: Query -> Text
-table (SelectFromWhere _ (From t) _) = t
+table (Query _ (From t) _) = t
