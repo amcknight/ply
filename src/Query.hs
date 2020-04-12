@@ -4,6 +4,7 @@ module Query
   , From(..)
   , Where(..)
   , Col
+  , Table
   , selection
   , table
   ) where
