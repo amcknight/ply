@@ -3,8 +3,6 @@ A tool for running SQL queries on CSVs
 
 ## Roadmap
 Subject to drastic changes
-
-Currently on v0.0.2
 ### v0.1
 * A CLI that runs SQL using SELECT, FROM, and WHERE
 * single table FROM
