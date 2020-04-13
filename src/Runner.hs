@@ -36,4 +36,7 @@ toElem csvRow c =
     Just e -> Right e
 
 whereFilter :: Query -> Row -> Bool
-whereFilter query = isTrue (condition query)
+whereFilter query row =
+  case condition query of
+    Nothing -> True
+    Just cond -> isTrue cond row

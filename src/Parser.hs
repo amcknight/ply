@@ -16,7 +16,7 @@ parse query =
     Right q -> Right q
 
 pQuery :: Parser Q.Query
-pQuery = Q.Query <$> pSelect <*> pFrom <*> pWhere <* eof
+pQuery = Q.Query <$> pSelect <*> pFrom <*> optional pWhere <* eof
 
 pSelect :: Parser Q.Select
 pSelect = Q.Select <$> (lex1 (string' "SELECT") *> lex1 columns)
@@ -34,7 +34,7 @@ columns = do
   return $ headCol : tailCols
 
 pFrom :: Parser Q.From
-pFrom = Q.From <$> (lex1 (string' "FROM") *> lex1 tableName)
+pFrom = Q.From <$> (lex1 (string' "FROM") *> lex0 tableName)
 
 pWhere :: Parser Q.Where
 pWhere = Q.Where <$> (lex1 (string' "WHERE") *> parseEx)
