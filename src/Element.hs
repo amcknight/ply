@@ -6,6 +6,6 @@ module Element
 import Data.Text (Text)
 import Data.Map.Ordered (OMap)
 
-data Elem = SElem Text | IElem Int deriving (Eq, Show)
+data Elem = SElem Text | IElem Int | BElem Bool deriving (Eq, Show)
 
 type Row = OMap Text Elem

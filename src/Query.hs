@@ -7,6 +7,7 @@ module Query
   , Where(..)
   , selection
   , table
+  , condition
   ) where
 
 import Expression (Ex)
@@ -34,3 +35,6 @@ selection (Query (Select ss) _ _) = ss
 
 table :: Query -> Text
 table (Query _ (From t) _) = t
+
+condition :: Query -> Ex
+condition (Query _ _ (Where ex)) = ex

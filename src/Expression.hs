@@ -1,17 +1,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Expression
-  ( Ex
-  , pEx
+  ( Ex(..)
   , parseEx
+  , evalEx
+  , isTrue
   ) where
 
+import Element
 import Data.Text (Text, pack)
 import Data.Void (Void)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators.Expr
+import Data.Map.Ordered as O (lookup)
 
 type Parser = Parsec Void Text
 
@@ -82,11 +85,58 @@ ops =
     ]
   ]
 
-pEx :: Parser Ex
-pEx = makeExprParser pTerm ops
+parseEx :: Parser Ex
+parseEx = makeExprParser pTerm ops
 
-parseEx :: Text -> Either Text Ex
-parseEx query =
-  case runParser pEx "" query of
-    Left errorBundle -> Left $ pack $ errorBundlePretty errorBundle
-    Right q -> Right q
+isTrue :: Ex -> Row -> Bool
+isTrue ex row = evalEx ex row == Just (LitB True)
+
+evalEx :: Ex -> Row -> Maybe Ex
+evalEx (Var v) r =
+  case O.lookup v r of
+    Just (BElem lit) -> Just $ LitB lit
+    Just (IElem lit) -> Just $ LitI lit
+    Just (SElem lit) -> Just $ LitS lit
+    _ -> Nothing
+evalEx (LitB v) _ = Just $ LitB v
+evalEx (LitI v) _ = Just $ LitI v
+evalEx (LitS v) _ = Just $ LitS v
+evalEx (Not e) r =
+  case evalEx e r of
+    Just (LitB v) -> Just $ LitB $ not v
+    _ -> Nothing
+evalEx (Eq  e1 e2) r = evalBBOp e1 e2 r (==)
+evalEx (NEq e1 e2) r = evalBBOp e1 e2 r (/=)
+evalEx (And e1 e2) r = evalBBOp e1 e2 r (&&)
+evalEx (Or  e1 e2) r = evalBBOp e1 e2 r (||)
+evalEx (Add e1 e2) r = evalIIOp e1 e2 r (+)
+evalEx (Mul e1 e2) r = evalIIOp e1 e2 r (*)
+evalEx (Lt  e1 e2) r = evalIBOp e1 e2 r (<)
+evalEx (Gt  e1 e2) r = evalIBOp e1 e2 r (>)
+evalEx (LtE e1 e2) r = evalIBOp e1 e2 r (<=)
+evalEx (GtE e1 e2) r = evalIBOp e1 e2 r (>=)
+evalEx (Cat e1 e2) r = evalSSOp e1 e2 r (<>)
+
+evalBBOp :: Ex -> Ex -> Row -> (Bool -> Bool -> Bool) -> Maybe Ex
+evalBBOp e1 e2 r op =
+  case (evalEx e1 r, evalEx e2 r) of
+    (Just (LitB a), Just (LitB b)) -> Just $ LitB $ op a b
+    _ -> Nothing
+
+evalIIOp :: Ex -> Ex -> Row -> (Int -> Int -> Int) -> Maybe Ex
+evalIIOp e1 e2 r op =
+  case (evalEx e1 r, evalEx e2 r) of
+    (Just (LitI a), Just (LitI b)) -> Just $ LitI $ op a b
+    _ -> Nothing
+
+evalSSOp :: Ex -> Ex -> Row -> (Text -> Text -> Text) -> Maybe Ex
+evalSSOp e1 e2 r op =
+  case (evalEx e1 r, evalEx e2 r) of
+    (Just (LitS a), Just (LitS b)) -> Just $ LitS $ op a b
+    _ -> Nothing
+
+evalIBOp :: Ex -> Ex -> Row -> (Int -> Int -> Bool) -> Maybe Ex
+evalIBOp e1 e2 r op =
+  case (evalEx e1 r, evalEx e2 r) of
+    (Just (LitI a), Just (LitI b)) -> Just $ LitB $ op a b
+    _ -> Nothing

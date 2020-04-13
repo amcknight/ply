@@ -3,7 +3,7 @@
 module Parser where
 
 import qualified Query as Q
-import Expression (pEx)
+import Expression (parseEx)
 import Data.Text (Text, pack)
 import Data.Void
 import Text.Megaparsec hiding (State)
@@ -58,4 +58,4 @@ pWhere :: Parser Q.Where
 pWhere = do
   _ <- string' "WHERE"
   _ <- space1
-  Q.Where <$> pEx
+  Q.Where <$> parseEx
