@@ -1,130 +1,92 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Expression
-  ( BExp
-  , parseBoolExp
+  ( Ex
+  , pEx
+  , parseEx
   ) where
 
-import Data.Text (Text, pack, unpack)
+import Data.Text (Text, pack)
 import Data.Void (Void)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators.Expr
-import Text.Megaparsec.Debug (dbg)
 
 type Parser = Parsec Void Text
 
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme space
 
-data SExp = SLit Text
-          | SVar Text
-          | Concat SExp SExp
-          deriving (Show, Eq)
---
+data Ex = Var Text
+        | LitB Bool
+        | LitI Int
+        | LitS Text
+        | Not Ex
+        | Eq  Ex Ex
+        | NEq Ex Ex
+        | And Ex Ex
+        | Or  Ex Ex
+        | Add Ex Ex
+        | Mul Ex Ex
+        | Lt  Ex Ex
+        | Gt  Ex Ex
+        | LtE Ex Ex
+        | GtE Ex Ex
+        | Cat Ex Ex
+        deriving (Show, Eq)
 
-pSLit :: Parser SExp
-pSLit = SLit . pack <$> lexeme (char '"' >> manyTill L.charLiteral (char '"'))
+pVar :: Parser Ex
+pVar = Var . pack <$> lexeme (some alphaNumChar)
 
-pSVar :: Parser SExp
-pSVar = SVar . pack <$> lexeme (some alphaNumChar)
+toLitB :: Text -> Ex
+toLitB "False" = LitB False
+toLitB "True" = LitB True
+pLitB :: Parser Ex
+pLitB = toLitB <$> lexeme (string "True" <|> string "False")
 
-pSTerm :: Parser SExp
-pSTerm = choice
-  [ pSLit
-  , pSVar
+pLitI :: Parser Ex
+pLitI = LitI <$> lexeme L.decimal
+
+pLitS :: Parser Ex
+pLitS = LitS . pack <$> lexeme (char '"' >> manyTill L.charLiteral (char '"'))
+
+pTerm :: Parser Ex
+pTerm = choice
+  [ pLitB
+  , pLitI
+  , pLitS
+  , pVar
   ]
 
-sOperatorTable :: [[Operator Parser SExp]]
-sOperatorTable =
-  [ [ InfixL (Concat <$ lexeme (string "+"))
-    ]
-  ]
-
-pSExp :: Parser SExp
-pSExp = makeExprParser pSTerm sOperatorTable
---
-
-data IExp = ILit Int
-          | IVar Text
-          | Add IExp IExp
-          | Sub IExp IExp
-          | Mul IExp IExp
-          | Div IExp IExp
-          deriving (Show, Eq)
-
-pILit :: Parser IExp
-pILit = ILit <$> lexeme L.decimal
-
-pIVar :: Parser IExp
-pIVar = IVar . pack <$> lexeme (some alphaNumChar)
-
-pITerm :: Parser IExp
-pITerm = choice
-  [ pILit
-  , pIVar
-  ]
-
-iOperatorTable :: [[Operator Parser IExp]]
-iOperatorTable =
-  [ [ InfixL (Mul <$ lexeme (string "*"))
-    , InfixL (Div <$ lexeme (string "/"))
-    ]
-  , [ InfixL (Add <$ lexeme (string "+"))
-    , InfixL (Sub <$ lexeme (string "-"))
-    ]
-  ]
-
-pIExp :: Parser IExp
-pIExp = makeExprParser pITerm iOperatorTable
---
-
-data BExp = BLit Bool
-          | BVar Text
-          | Not BExp
-          | EqB BExp BExp
-          | And BExp BExp
-          | Or  BExp BExp
-          | EqI IExp IExp
-          | LtI IExp IExp
-          | GtI IExp IExp
-          | EqS SExp SExp
-          deriving (Show, Eq)
-
-toBLit :: Text -> BExp
-toBLit "False" = BLit False
-toBLit "True" = BLit True
-
-pBLit :: Parser BExp
-pBLit = toBLit <$> lexeme (string "True" <|> string "False")
-
-pBVar :: Parser BExp
-pBVar = BVar . pack <$> lexeme (some alphaNumChar)
-
-pBTerm :: Parser BExp
-pBTerm = choice
-  [ pBLit
-  , pBVar
-  ]
-
-bOperatorTable :: [[Operator Parser BExp]]
-bOperatorTable =
-  [ [ InfixL (EqB <$ lexeme (string "="))
-    , InfixL (EqI <$ lexeme (string "="))
-    , InfixL (EqS <$ lexeme (string "="))
+ops :: [[Operator Parser Ex]]
+ops =
+  [ [ Prefix (Not <$ lexeme (string "!"))
     ]
   , [ InfixL (And <$ lexeme (string "&"))
     , InfixL (Or  <$ lexeme (string "|"))
     ]
-  , [ InfixL (LtI <$ lexeme (string "<"))
-    , InfixL (GtI <$ lexeme (string ">"))
+  , [ InfixL (Cat <$ lexeme (string "++"))
+    ]
+  , [ InfixL (Add <$ lexeme (string "+"))
+    , InfixL (Mul <$ lexeme (string "*"))
+    ]
+  , [ InfixL (LtE <$ lexeme (string "<="))
+    , InfixL (GtE <$ lexeme (string ">="))
+    ]
+  , [ InfixL (Lt  <$ lexeme (string "<"))
+    , InfixL (Gt  <$ lexeme (string ">"))
+    ]
+  , [ InfixL (Eq  <$ lexeme (string "="))
+    , InfixL (NEq <$ lexeme (string "!="))
     ]
   ]
 
-pBExp :: Parser BExp
-pBExp = makeExprParser pBTerm bOperatorTable
---
+pEx :: Parser Ex
+pEx = makeExprParser pTerm ops
 
-parseBoolExp :: Parser BExp
-parseBoolExp = undefined
+parseEx :: Text -> Either Text Ex
+parseEx query =
+  case runParser pEx "" query of
+    Left errorBundle -> Left $ pack $ errorBundlePretty errorBundle
+    Right q -> Right q

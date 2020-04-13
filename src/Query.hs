@@ -9,7 +9,7 @@ module Query
   , table
   ) where
 
-import Expression (BExp)
+import Expression (Ex)
 import Data.Text (Text)
 
 -- Select
@@ -21,7 +21,7 @@ type Table = Text
 newtype From = From Table deriving (Show, Eq)
 
 -- Where
-newtype Where = Where BExp deriving (Show, Eq)
+newtype Where = Where Ex deriving (Show, Eq)
 
 data Query = Query
   { select :: Select

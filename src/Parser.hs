@@ -1,8 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module Parser where
 
 import qualified Query as Q
-import Expression (parseBoolExp)
+import Expression (pEx)
 import Data.Text (Text, pack)
 import Data.Void
 import Text.Megaparsec hiding (State)
@@ -57,4 +58,4 @@ pWhere :: Parser Q.Where
 pWhere = do
   _ <- string' "WHERE"
   _ <- space1
-  Q.Where <$> parseBoolExp
+  Q.Where <$> pEx
