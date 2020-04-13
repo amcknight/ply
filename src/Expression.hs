@@ -2,6 +2,7 @@
 
 module Expression
   ( BExp
+  , parseBoolExp
   ) where
 
 import Data.Text (Text, pack, unpack)
@@ -10,91 +11,120 @@ import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators.Expr
+import Text.Megaparsec.Debug (dbg)
 
 type Parser = Parsec Void Text
 
---data SSB = Equal deriving (Show, Eq)
---data SSS = Concat deriving (Show, Eq)
+lexeme :: Parser a -> Parser a
+lexeme = L.lexeme space
+
 data SExp = SLit Text
           | SVar Text
           | Concat SExp SExp
           deriving (Show, Eq)
-
-sc :: Parser ()
-sc = L.space space1 empty empty
-
-lexeme :: Parser a -> Parser a
-lexeme = L.lexeme sc
-
-symbol :: Text -> Parser Text
-symbol = L.symbol sc
-
-binary :: Text -> (SExp -> SExp -> SExp) -> Operator Parser SExp
-binary name f = InfixL (f <$ symbol name)
 --
 
-pLit :: Parser SExp
-pLit = SLit . pack <$> (char '"' >> manyTill L.charLiteral (char '"'))
+pSLit :: Parser SExp
+pSLit = SLit . pack <$> lexeme (char '"' >> manyTill L.charLiteral (char '"'))
 
-pVar :: Parser SExp
-pVar = SVar . pack <$> some alphaNumChar
+pSVar :: Parser SExp
+pSVar = SVar . pack <$> lexeme (some alphaNumChar)
 
-pTerm :: Parser SExp
-pTerm = choice
-  [ pLit
-  , pVar
+pSTerm :: Parser SExp
+pSTerm = choice
+  [ pSLit
+  , pSVar
   ]
 
-pExp :: Parser SExp
-pExp = makeExprParser pTerm operatorTable
-
-operatorTable :: [[Operator Parser SExp]]
-operatorTable =
-  [ [ binary "+" Concat
+sOperatorTable :: [[Operator Parser SExp]]
+sOperatorTable =
+  [ [ InfixL (Concat <$ lexeme (string "+"))
     ]
   ]
 
---pSSB :: Parser SSB
---pSSB = choice [Equal <$ char '=']
+pSExp :: Parser SExp
+pSExp = makeExprParser pSTerm sOperatorTable
 --
---pSSS :: Parser SSS
---pSSS = choice [Concat <$ string "++"]
---
---pSExp :: Parser SExp
---pSExp = choice
---  [ SLit <$> pQuotedText
---  , SCol <$> pCol
---  , pSExp'
---  ]
---
---pSExp' = do
---  e1 <- pSExp
---  _ <- space
---  o <- pSSS
---  _ <- space
---  e2 <- pSExp
---  return $ SSS e1 o e2
---
---
---pCol :: Parser Text
---pCol = pack <$> some (alphaNumChar <|> char '_')
---
---pQuotedText :: Parser Text
---pQuotedText = pack <$> (char '"' *> manyTill charLiteral (char '"'))
 
---data III = Add | Sub | Mul | Div deriving (Show, Eq)
---data IExp = ILit Int
---          | ICol Text
---          | III IExp III IExp
---          deriving (Show, Eq)
---
---type IIB = Ordering
---data BLit = False | True deriving (Show, Eq)
---data BB = Not deriving (Show, Eq)
---data BBB = And | Or deriving (Show, Eq)
-data BExp = BLit
---          | BB BB BExp
---          | BBB BExp BBB BExp
---          | IIB IExp IIB IExp
---          | SSB SExp SSB SExp
+data IExp = ILit Int
+          | IVar Text
+          | Add IExp IExp
+          | Sub IExp IExp
+          | Mul IExp IExp
+          | Div IExp IExp
           deriving (Show, Eq)
+
+pILit :: Parser IExp
+pILit = ILit <$> lexeme L.decimal
+
+pIVar :: Parser IExp
+pIVar = IVar . pack <$> lexeme (some alphaNumChar)
+
+pITerm :: Parser IExp
+pITerm = choice
+  [ pILit
+  , pIVar
+  ]
+
+iOperatorTable :: [[Operator Parser IExp]]
+iOperatorTable =
+  [ [ InfixL (Mul <$ lexeme (string "*"))
+    , InfixL (Div <$ lexeme (string "/"))
+    ]
+  , [ InfixL (Add <$ lexeme (string "+"))
+    , InfixL (Sub <$ lexeme (string "-"))
+    ]
+  ]
+
+pIExp :: Parser IExp
+pIExp = makeExprParser pITerm iOperatorTable
+--
+
+data BExp = BLit Bool
+          | BVar Text
+          | Not BExp
+          | EqB BExp BExp
+          | And BExp BExp
+          | Or  BExp BExp
+          | EqI IExp IExp
+          | LtI IExp IExp
+          | GtI IExp IExp
+          | EqS SExp SExp
+          deriving (Show, Eq)
+
+toBLit :: Text -> BExp
+toBLit "False" = BLit False
+toBLit "True" = BLit True
+
+pBLit :: Parser BExp
+pBLit = toBLit <$> lexeme (string "True" <|> string "False")
+
+pBVar :: Parser BExp
+pBVar = BVar . pack <$> lexeme (some alphaNumChar)
+
+pBTerm :: Parser BExp
+pBTerm = choice
+  [ pBLit
+  , pBVar
+  ]
+
+bOperatorTable :: [[Operator Parser BExp]]
+bOperatorTable =
+  [ [ InfixL (EqB <$ lexeme (string "="))
+    , InfixL (EqI <$ lexeme (string "="))
+    , InfixL (EqS <$ lexeme (string "="))
+    ]
+  , [ InfixL (And <$ lexeme (string "&"))
+    , InfixL (Or  <$ lexeme (string "|"))
+    ]
+  , [ InfixL (LtI <$ lexeme (string "<"))
+    , InfixL (GtI <$ lexeme (string ">"))
+    ]
+  ]
+
+pBExp :: Parser BExp
+pBExp = makeExprParser pBTerm bOperatorTable
+--
+
+parseBoolExp :: Parser BExp
+parseBoolExp = undefined
