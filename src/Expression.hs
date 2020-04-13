@@ -8,18 +8,13 @@ module Expression
   ) where
 
 import Element
+import ParseUtils
 import Data.Text (Text, pack)
-import Data.Void (Void)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators.Expr
 import Data.Map.Ordered as O (lookup)
-
-type Parser = Parsec Void Text
-
-lexeme :: Parser a -> Parser a
-lexeme = L.lexeme space
 
 data Ex = Var Text
         | LitB Bool
@@ -40,19 +35,19 @@ data Ex = Var Text
         deriving (Show, Eq)
 
 pVar :: Parser Ex
-pVar = Var . pack <$> lexeme (some (alphaNumChar <|> char '_'))
+pVar = Var . pack <$> lex0 (some (alphaNumChar <|> char '_'))
 
 toLitB :: Text -> Ex
 toLitB "False" = LitB False
 toLitB "True" = LitB True
 pLitB :: Parser Ex
-pLitB = toLitB <$> lexeme (string "True" <|> string "False")
+pLitB = toLitB <$> lex0 (string "True" <|> string "False")
 
 pLitI :: Parser Ex
-pLitI = LitI <$> lexeme L.decimal
+pLitI = LitI <$> lex0 L.decimal
 
 pLitS :: Parser Ex
-pLitS = LitS . pack <$> lexeme (char '"' >> manyTill L.charLiteral (char '"'))
+pLitS = LitS . pack <$> lex0 (char '"' >> manyTill L.charLiteral (char '"'))
 
 pTerm :: Parser Ex
 pTerm = choice
@@ -64,24 +59,24 @@ pTerm = choice
 
 ops :: [[Operator Parser Ex]]
 ops =
-  [ [ Prefix (Not <$ lexeme (string' "NOT"))
+  [ [ Prefix (Not <$ lex0 (string' "NOT"))
     ]
-  , [ InfixL (And <$ lexeme (string' "AND"))
-    , InfixL (Or  <$ lexeme (string' "OR"))
+  , [ InfixL (And <$ lex0 (string' "AND"))
+    , InfixL (Or  <$ lex0 (string' "OR"))
     ]
-  , [ InfixL (Cat <$ lexeme (string "++"))
+  , [ InfixL (Cat <$ lex0 (string "++"))
     ]
-  , [ InfixL (Add <$ lexeme (string "+"))
-    , InfixL (Mul <$ lexeme (string "*"))
+  , [ InfixL (Add <$ lex0 (string "+"))
+    , InfixL (Mul <$ lex0 (string "*"))
     ]
-  , [ InfixL (LtE <$ lexeme (string "<="))
-    , InfixL (GtE <$ lexeme (string ">="))
+  , [ InfixL (LtE <$ lex0 (string "<="))
+    , InfixL (GtE <$ lex0 (string ">="))
     ]
-  , [ InfixL (Lt  <$ lexeme (string "<"))
-    , InfixL (Gt  <$ lexeme (string ">"))
+  , [ InfixL (Lt  <$ lex0 (string "<"))
+    , InfixL (Gt  <$ lex0 (string ">"))
     ]
-  , [ InfixL (Eq  <$ lexeme (string "="))
-    , InfixL (NEq <$ lexeme (string "!="))
+  , [ InfixL (Eq  <$ lex0 (string "="))
+    , InfixL (NEq <$ lex0 (string "!="))
     ]
   ]
 
