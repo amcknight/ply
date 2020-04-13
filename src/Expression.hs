@@ -40,7 +40,7 @@ data Ex = Var Text
         deriving (Show, Eq)
 
 pVar :: Parser Ex
-pVar = Var . pack <$> lexeme (some alphaNumChar)
+pVar = Var . pack <$> lexeme (some (alphaNumChar <|> char '_'))
 
 toLitB :: Text -> Ex
 toLitB "False" = LitB False
@@ -64,10 +64,10 @@ pTerm = choice
 
 ops :: [[Operator Parser Ex]]
 ops =
-  [ [ Prefix (Not <$ lexeme (string "!"))
+  [ [ Prefix (Not <$ lexeme (string' "NOT"))
     ]
-  , [ InfixL (And <$ lexeme (string "&"))
-    , InfixL (Or  <$ lexeme (string "|"))
+  , [ InfixL (And <$ lexeme (string' "AND"))
+    , InfixL (Or  <$ lexeme (string' "OR"))
     ]
   , [ InfixL (Cat <$ lexeme (string "++"))
     ]
@@ -105,38 +105,48 @@ evalEx (Not e) r =
   case evalEx e r of
     Just (LitB v) -> Just $ LitB $ not v
     _ -> Nothing
-evalEx (Eq  e1 e2) r = evalBBOp e1 e2 r (==)
-evalEx (NEq e1 e2) r = evalBBOp e1 e2 r (/=)
-evalEx (And e1 e2) r = evalBBOp e1 e2 r (&&)
-evalEx (Or  e1 e2) r = evalBBOp e1 e2 r (||)
-evalEx (Add e1 e2) r = evalIIOp e1 e2 r (+)
-evalEx (Mul e1 e2) r = evalIIOp e1 e2 r (*)
-evalEx (Lt  e1 e2) r = evalIBOp e1 e2 r (<)
-evalEx (Gt  e1 e2) r = evalIBOp e1 e2 r (>)
-evalEx (LtE e1 e2) r = evalIBOp e1 e2 r (<=)
-evalEx (GtE e1 e2) r = evalIBOp e1 e2 r (>=)
-evalEx (Cat e1 e2) r = evalSSOp e1 e2 r (<>)
+evalEx (Eq e1 e2) r =
+  case (evalEx e1 r, evalEx e2 r) of
+    (Just (LitB a), Just (LitB b)) -> Just $ LitB $ a == b
+    (Just (LitI a), Just (LitI b)) -> Just $ LitB $ a == b
+    (Just (LitS a), Just (LitS b)) -> Just $ LitB $ a == b
+    _ -> Nothing
+evalEx (NEq e1 e2) r =
+  case (evalEx e1 r, evalEx e2 r) of
+    (Just (LitB a), Just (LitB b)) -> Just $ LitB $ a /= b
+    (Just (LitI a), Just (LitI b)) -> Just $ LitB $ a /= b
+    (Just (LitS a), Just (LitS b)) -> Just $ LitB $ a /= b
+    _ -> Nothing
+evalEx (And e1 e2) r = evalBBOp e1 e2 (&&) r
+evalEx (Or  e1 e2) r = evalBBOp e1 e2 (||) r
+evalEx (Add e1 e2) r = evalIIOp e1 e2 (+)  r
+evalEx (Mul e1 e2) r = evalIIOp e1 e2 (*)  r
+evalEx (Lt  e1 e2) r = evalIBOp e1 e2 (<)  r
+evalEx (Gt  e1 e2) r = evalIBOp e1 e2 (>)  r
+evalEx (LtE e1 e2) r = evalIBOp e1 e2 (<=) r
+evalEx (GtE e1 e2) r = evalIBOp e1 e2 (>=) r
+evalEx (Cat e1 e2) r = evalSSOp e1 e2 (<>) r
 
-evalBBOp :: Ex -> Ex -> Row -> (Bool -> Bool -> Bool) -> Maybe Ex
-evalBBOp e1 e2 r op =
+evalBBOp :: Ex -> Ex -> (Bool -> Bool -> Bool) -> Row -> Maybe Ex
+evalBBOp e1 e2 op r =
   case (evalEx e1 r, evalEx e2 r) of
     (Just (LitB a), Just (LitB b)) -> Just $ LitB $ op a b
     _ -> Nothing
 
-evalIIOp :: Ex -> Ex -> Row -> (Int -> Int -> Int) -> Maybe Ex
-evalIIOp e1 e2 r op =
+evalIIOp :: Ex -> Ex -> (Int -> Int -> Int) -> Row -> Maybe Ex
+evalIIOp e1 e2 op r =
   case (evalEx e1 r, evalEx e2 r) of
     (Just (LitI a), Just (LitI b)) -> Just $ LitI $ op a b
     _ -> Nothing
 
-evalSSOp :: Ex -> Ex -> Row -> (Text -> Text -> Text) -> Maybe Ex
-evalSSOp e1 e2 r op =
+evalSSOp :: Ex -> Ex -> (Text -> Text -> Text) -> Row -> Maybe Ex
+evalSSOp e1 e2 op r =
   case (evalEx e1 r, evalEx e2 r) of
     (Just (LitS a), Just (LitS b)) -> Just $ LitS $ op a b
     _ -> Nothing
 
-evalIBOp :: Ex -> Ex -> Row -> (Int -> Int -> Bool) -> Maybe Ex
-evalIBOp e1 e2 r op =
+evalIBOp :: Ex -> Ex -> (Int -> Int -> Bool) -> Row -> Maybe Ex
+evalIBOp e1 e2 op r =
   case (evalEx e1 r, evalEx e2 r) of
     (Just (LitI a), Just (LitI b)) -> Just $ LitB $ op a b
     _ -> Nothing
