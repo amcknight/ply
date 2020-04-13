@@ -14,3 +14,4 @@ toMsg = intercalate " | " . fmap (convert . snd) . assocs
 convert :: Elem -> Text
 convert (SElem s) = s
 convert (IElem i) = pack $ show i
+convert (BElem b) = pack $ show b

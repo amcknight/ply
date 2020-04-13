@@ -1,5 +1,13 @@
 # Changelog for csvsql
 
+### v0.0.4
+* Created an Expression AST with parse and eval methods
+* WHERE Clause works (though fails silently and isn't type-safe)
+
+### v0.0.3
+* Switched out query parsing to use megaparsec
+* SELECT statements parse with commas
+
 ### v0.0.2
 
 * Unit tests exist
