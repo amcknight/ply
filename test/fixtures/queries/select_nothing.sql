@@ -1,1 +1,0 @@
-SELECT FROM people WHERE True

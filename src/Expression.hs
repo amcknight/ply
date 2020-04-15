@@ -61,9 +61,6 @@ ops :: [[Operator Parser Ex]]
 ops =
   [ [ Prefix (Not <$ lex0 (string' "NOT"))
     ]
-  , [ InfixL (And <$ lex0 (string' "AND"))
-    , InfixL (Or  <$ lex0 (string' "OR"))
-    ]
   , [ InfixL (Cat <$ lex0 (string "++"))
     ]
   , [ InfixL (Add <$ lex0 (string "+"))
@@ -77,6 +74,9 @@ ops =
     ]
   , [ InfixL (Eq  <$ lex0 (string "="))
     , InfixL (NEq <$ lex0 (string "!="))
+    ]
+  , [ InfixL (And <$ lex0 (string' "AND"))
+    , InfixL (Or  <$ lex0 (string' "OR"))
     ]
   ]
 
