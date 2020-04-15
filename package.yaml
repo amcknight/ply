@@ -1,5 +1,5 @@
 name:                csvsql
-version:             0.0.4
+version:             0.0.5
 github:              "amcknight/csvsql"
 license:             BSD3
 author:              "Andrew McKnight"
@@ -52,5 +52,7 @@ tests:
     dependencies:
     - csvsql
     - utf8-string
+    - filepath
     - tasty
     - tasty-hunit
+    - tasty-golden
