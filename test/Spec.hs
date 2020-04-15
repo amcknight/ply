@@ -2,7 +2,7 @@
 
 import Query as Q
 import Expression
-import CsvSql (go, runQuery)
+import CsvSql (go)
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.Golden (findByExtension, goldenVsString)

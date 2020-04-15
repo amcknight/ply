@@ -1,9 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module CsvSql
-  ( csvPath
-  , runQuery
-  , go
+  ( go
   ) where
 
 import Data.ByteString.Lazy as B (ByteString, readFile)
