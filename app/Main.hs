@@ -2,10 +2,13 @@ module Main where
 
 import System.Environment (getArgs)
 import CsvSql (go)
-import Data.Text (pack, unpack)
+import Data.Text (Text, pack, unpack)
 
 main :: IO ()
 main = do
-  argsStrings <- getArgs
-  res <- (go . pack . head) argsStrings
-  (putStr . unpack) res
+  query <- optParse
+  res <- go query
+  putStr $ unpack res
+
+optParse :: IO Text
+optParse = pack . head <$> getArgs

@@ -1,4 +1,5 @@
 .idea/libraries
+.idea/dbnavigator.xml
 .stack-work
 out
 csvsql.cabal
