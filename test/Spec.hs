@@ -1,51 +1,43 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Test.Tasty
-import Test.Tasty.HUnit
 import Query as Q
 import Expression
-import CsvSql (runQuery)
-import Data.ByteString.Lazy.UTF8 as BLU (fromString)
+import CsvSql (go, runQuery)
+import Test.Tasty
+import Test.Tasty.HUnit
+import Test.Tasty.Golden (findByExtension, goldenVsString)
+import Data.ByteString.Lazy as B (ByteString, readFile)
+import Data.ByteString.Lazy.UTF8 (fromString, toString)
+import Data.Text
+import System.FilePath (takeBaseName)
 
 main :: IO ()
-main = defaultMain tests
+main = defaultMain =<< do
+  g <- goldenTests
+  return $ testGroup "Tests" [unitTests, g]
 
-tests :: TestTree
-tests = testGroup "Unit tests"
-  [ testCase "Run a query with no WHERE" runQueryNoWhere
-  , testCase "Run a simple query" runSimpleQuery
-  , testCase "Run a simple query with reversed selection order" runSimpleQueryReversed
-  , testCase "Run a query with uppercase columns" runUppercaseQuery
+goldenTests :: IO TestTree
+goldenTests = do
+  queryPaths <- findByExtension [".sql"] "test/fixtures/queries/"
+  tests <- traverse buildTest queryPaths
+  return $ testGroup "Golden Test" tests
+
+buildTest :: FilePath -> IO TestTree
+buildTest queryPath = do
+  let fileName = takeBaseName queryPath
+  let goldenPath = "test/fixtures/golden/" ++ fileName ++ ".csv"
+  queryRes <- runquery . pack . toString <$> B.readFile queryPath
+  return $ goldenVsString fileName goldenPath queryRes
+
+runquery :: Text -> IO B.ByteString
+runquery query = do
+  res <- go query
+  return $ (fromString . unpack) res
+
+unitTests :: TestTree
+unitTests = testGroup "Unit tests"
+  [ testCase "True" alwaysTrue
   ]
 
-runQueryNoWhere :: Assertion
-runQueryNoWhere = assertEqual ""
-  "Andrew | 35\nTom | 36\nCayley | 31\nJuly | 0\n"
-  (runQuery
-    (Q.Query (Q.Select ["first_name", "age"]) (Q.From "ages") Nothing)
-    (BLU.fromString "first_name, last_name, age\nAndrew, McKnight, 35\nTom, Ash, 36\nCayley, Carlson, 31\nJuly, McKnight, 0\n")
-  )
-
-runSimpleQuery :: Assertion
-runSimpleQuery = assertEqual ""
-  "Andrew | 35\nTom | 36\n"
-  (runQuery
-    (Q.Query (Q.Select ["first_name", "age"]) (Q.From "ages") (Just (Q.Where (Gt (Var "age") (LitI 33)))))
-    (BLU.fromString "first_name, last_name, age\nAndrew, McKnight, 35\nTom, Ash, 36\nCayley, Carlson, 31\nJuly, McKnight, 0\n")
-  )
-
-runSimpleQueryReversed :: Assertion
-runSimpleQueryReversed = assertEqual ""
-  "35 | Andrew\n36 | Tom\n"
-  (runQuery
-    (Q.Query (Q.Select ["age", "first_name"]) (Q.From "ages") (Just (Q.Where (Gt (Var "age") (LitI 33)))))
-    (BLU.fromString "first_name, last_name, age\nAndrew, McKnight, 35\nTom, Ash, 36\nCayley, Carlson, 31\nJuly, McKnight, 0\n")
-  )
-
-runUppercaseQuery :: Assertion
-runUppercaseQuery = assertEqual ""
-  "Andrew | 35\nTom | 36\n"
-  (runQuery
-    (Q.Query (Q.Select ["FirstName", "Age"]) (Q.From "ages") (Just (Q.Where (Gt (Var "Age") (LitI 33)))))
-    (BLU.fromString "FirstName, LastName, Age\nAndrew, McKnight, 35\nTom, Ash, 36\nCayley, Carlson, 31\nJuly, McKnight, 0\n")
-  )
+alwaysTrue :: Assertion
+alwaysTrue = assertEqual "" True True

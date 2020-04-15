@@ -52,5 +52,7 @@ tests:
     dependencies:
     - csvsql
     - utf8-string
+    - filepath
     - tasty
     - tasty-hunit
+    - tasty-golden

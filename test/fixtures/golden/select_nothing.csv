@@ -1,0 +1,6 @@
+1:13:
+  |
+1 | SELECT FROM people WHERE True
+  |             ^^^^
+unexpected "peop"
+expecting "FROM" or white space
