@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module CsvSql
-  ( go
+  ( parseAndProcess
   ) where
 
 import Data.ByteString.Lazy as B (ByteString, readFile)
@@ -15,16 +15,16 @@ import Parser (parse)
 import Element (Row, TCol(BCol), tableType)
 import QueryException (QueryException(TypeCheckException))
 
-go :: Text -> IO Text
-go input =
+parseAndProcess :: Text -> IO Text
+parseAndProcess input =
   case parse input of
-    Left errorStr -> pure errorStr
-    Right query -> process query
+    Left errStr -> pure errStr
+    Right query -> readAndProcess query
 
-process :: Query -> IO Text
-process query = do
+readAndProcess :: Query -> IO Text
+readAndProcess query = do
   csvData <- (B.readFile . unpack . csvPath) query
-  pure $ runQuery query csvData
+  pure $ loadCsvAndProcess query csvData
 
 csvPath :: Query -> Text
 csvPath query =
@@ -34,21 +34,21 @@ csvPath query =
   where fromPath = table query
         csvExtension = ".csv"
 
-runQuery :: Query -> ByteString -> Text
-runQuery query csvData =
+loadCsvAndProcess :: Query -> ByteString -> Text
+loadCsvAndProcess query csvData =
   case loadCsv csvData of
     Left err -> err
-    Right rows -> checkAndRun query rows
+    Right rows -> checkAndProcess query rows
 
-checkAndRun :: Query -> [Row] -> Text
-checkAndRun query rows =
+checkAndProcess :: Query -> [Row] -> Text
+checkAndProcess query rows =
   case condition query of
-    Nothing -> actuallyRun query rows
+    Nothing -> process query rows
     Just ex ->
       case checkEx ex (tableType (head rows)) of
         Left err -> pack $ show err
-        Right BCol -> actuallyRun query rows
-        Right t -> pack $ show $ TypeCheckException $ pack ("WHERE clause evaluated to " ++ show t ++ " instead of Bool")
+        Right BCol -> process query rows
+        Right t -> pack $ show $ TypeCheckException $ pack $ "WHERE clause evaluated to " ++ show t ++ " instead of Bool"
 
-actuallyRun :: Query -> [Row] -> Text
-actuallyRun query = T.unlines . fmap toMsg . run query
+process :: Query -> [Row] -> Text
+process query = T.unlines . fmap toMsg . run query
