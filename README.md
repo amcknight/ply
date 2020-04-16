@@ -9,15 +9,17 @@ Subject to drastic changes
 * Basic Bool, Int, and String support in queries and CSVs
 * Unit tests
 ### v0.2
-* FROM can handle more than one file
-* WHERE can check equality between tables (join-like capabilities)
+* AS support for SELECT and FROM names
+* JOIN capabilities in SELECT, FROM, and WHERE clauses
 * Add support for Decimals
-* WHERE clause supports number inequalities
+### v0.3
+* GROUP BY, ORDER BY, LIMIT
 ### Beyond
-* CREATE, SELECT INTO, INSERT, JOIN, GROUP BY, ORDER BY, LIMIT
+* Streaming sources and sinks
+* Stdin as a Table (pipe in a cat/tail)
+* CREATE, SELECT INTO, INSERT, UPDATE
 * Console to allow query building auto-completion
 * Start thinking about performance, maybe
-* Streaming sources and sinks
 * Flexible formats beyond CSV (JSONL, Common Log Format, etc)
 * Integration with NuShell
 * etc
