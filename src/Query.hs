@@ -12,6 +12,7 @@ module Query
 
 import Expression (Ex)
 import Data.Text (Text)
+import QueryException
 
 -- Select
 type Col = Text

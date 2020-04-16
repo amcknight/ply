@@ -5,12 +5,15 @@ module CsvSql
   ) where
 
 import Data.ByteString.Lazy as B (ByteString, readFile)
-import Data.Text as T (Text, unlines, takeEnd, unpack)
-import Query (Query, table)
+import Data.Text as T (Text, unlines, takeEnd, unpack, pack)
+import Query (Query, table, condition)
+import Expression (checkEx)
 import Loader (loadCsv)
 import Runner (run)
 import Formatter (toMsg)
 import Parser (parse)
+import Element (Row, TCol(BCol), tableType)
+import QueryException (QueryException(TypeCheckException))
 
 go :: Text -> IO Text
 go input =
@@ -35,4 +38,17 @@ runQuery :: Query -> ByteString -> Text
 runQuery query csvData =
   case loadCsv csvData of
     Left err -> err
-    Right rows -> (T.unlines . fmap toMsg . run query) rows
+    Right rows -> checkAndRun query rows
+
+checkAndRun :: Query -> [Row] -> Text
+checkAndRun query rows =
+  case condition query of
+    Nothing -> actuallyRun query rows
+    Just ex ->
+      case checkEx ex (tableType (head rows)) of
+        Left err -> pack $ show err
+        Right BCol -> actuallyRun query rows
+        Right t -> pack $ show $ TypeCheckException $ pack ("WHERE clause evaluated to " ++ show t ++ " instead of Bool")
+
+actuallyRun :: Query -> [Row] -> Text
+actuallyRun query = T.unlines . fmap toMsg . run query
