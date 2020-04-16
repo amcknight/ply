@@ -6,12 +6,12 @@ Subject to drastic changes
 ### v0.1
 * A CLI that runs SQL using SELECT, FROM, and WHERE
 * single table FROM
-* WHERE clause supports equality
+* Basic Bool, Int, and String support in queries and CSVs
 * Unit tests
 ### v0.2
 * FROM can handle more than one file
 * WHERE can check equality between tables (join-like capabilities)
-* Basic Bool, Int, Decimal, and String types can be pulled from CSVs
+* Add support for Decimals
 * WHERE clause supports number inequalities
 ### Beyond
 * CREATE, SELECT INTO, INSERT, JOIN, GROUP BY, ORDER BY, LIMIT
