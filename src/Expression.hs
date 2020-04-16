@@ -2,6 +2,7 @@
 
 module Expression
   ( Ex(..)
+  , ExError
   , parseEx
   , evalEx
   , checkEx

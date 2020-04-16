@@ -7,13 +7,14 @@ module CsvSql
 import Data.ByteString.Lazy as B (ByteString, readFile)
 import Data.Text as T (Text, unlines, takeEnd, unpack, pack)
 import Query (Query, table, condition)
-import Expression (checkEx)
+import Expression (checkEx, ExError, Ex(LitB))
 import Loader (loadCsv)
 import Runner (run)
 import Formatter (toMsg)
 import Parser (parse)
 import Element (Row, TCol(BCol), tableType)
 import QueryException (QueryException(TypeCheckException))
+import Data.Maybe (fromMaybe)
 
 parseAndProcess :: Text -> IO Text
 parseAndProcess input =
@@ -38,17 +39,25 @@ loadCsvAndProcess :: Query -> ByteString -> Text
 loadCsvAndProcess query csvData =
   case loadCsv csvData of
     Left err -> err
-    Right rows -> checkAndProcess query rows
+    Right rows -> checkWhereAndProcess query rows
 
-checkAndProcess :: Query -> [Row] -> Text
-checkAndProcess query rows =
-  case condition query of
-    Nothing -> process query rows
-    Just ex ->
-      case checkEx ex (tableType (head rows)) of
-        Left err -> pack $ show err
-        Right BCol -> process query rows
-        Right t -> pack $ show $ TypeCheckException $ pack $ "WHERE clause evaluated to " ++ show t ++ " instead of Bool"
+checkWhereAndProcess :: Query -> [Row] -> Text
+checkWhereAndProcess query = checkExAndProcess query ex
+  where ex = fromMaybe (LitB True) (condition query)
+
+checkExAndProcess :: Query -> Ex -> [Row] -> Text
+checkExAndProcess query ex rows =
+  case typeCheck ex rows of
+    Left err -> (pack . show) err
+    Right BCol -> process query rows
+    Right t -> typeCheckException t
+
+typeCheck :: Ex -> [Row] -> Either ExError TCol
+typeCheck ex = checkEx ex . tableType . head
+
+typeCheckException :: TCol -> Text
+typeCheckException t =
+  pack . show $ TypeCheckException $ pack $ "WHERE clause evaluated to " ++ show t ++ " instead of Bool"
 
 process :: Query -> [Row] -> Text
 process query = T.unlines . fmap toMsg . run query
