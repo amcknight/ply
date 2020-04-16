@@ -1,0 +1,3 @@
+Type Error in left argument of And (LitI 3) (LitB True)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^
+Expected Boolean but found Integer
