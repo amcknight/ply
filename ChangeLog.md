@@ -1,5 +1,12 @@
 # Changelog for csvsql
 
+### v0.0.6
+* Type Checking of WHERE clause
+
+### v0.0.5
+* Converted Unit testing over to golden tests
+* Moved Main code into CsvSql
+
 ### v0.0.4
 * Created an Expression AST with parse and eval methods
 * WHERE Clause works (though fails silently and isn't type-safe)

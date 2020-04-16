@@ -2,7 +2,7 @@
 
 import Query as Q
 import Expression
-import CsvSql (go)
+import CsvSql (parseAndProcess)
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.Golden (findByExtension, goldenVsString)
@@ -31,7 +31,7 @@ buildTest queryPath = do
 
 runquery :: Text -> IO B.ByteString
 runquery query = do
-  res <- go query
+  res <- parseAndProcess query
   return $ (fromString . unpack) res
 
 unitTests :: TestTree

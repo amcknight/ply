@@ -2,19 +2,49 @@
 
 module Expression
   ( Ex(..)
+  , ExError
   , parseEx
   , evalEx
+  , checkEx
   , isTrue
   ) where
 
 import Element
 import ParseUtils
-import Data.Text (Text, pack)
+import Data.Text (Text, pack, unpack)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
+import Control.Exception.Base (Exception)
 import Control.Monad.Combinators.Expr
 import Data.Map.Ordered as O (lookup)
+
+data ExError = MissingColumnError Text
+             -- Offending Expression, Expected Type, Actual Type
+             | TypeError      Ex TCol TCol
+             | TypeErrorLeft  Ex TCol TCol
+             | TypeErrorRight Ex TCol TCol
+
+instance Show ExError where
+  show (MissingColumnError name) =
+    "Missing column: " ++ unpack name
+  show (TypeError e ec ac) =
+    prefix ++ errMsg ++ "\n" ++ carets ++ "\nExpected " ++ show ec ++ " but found " ++ show ac
+    where errMsg = show e
+          prefix = "Type Error in "
+          carets = replicate (length prefix) ' ' ++ replicate (length errMsg) '^'
+  show (TypeErrorLeft e ec ac) =
+    prefix ++ errMsg ++ "\n" ++ carets ++ "\nExpected " ++ show ec ++ " but found " ++ show ac
+    where errMsg = show e
+          prefix = "Type Error in left argument of "
+          carets = replicate (length prefix) ' ' ++ replicate (length errMsg) '^'
+  show (TypeErrorRight e ec ac) =
+    prefix ++ errMsg ++ "\n" ++ carets ++ "\nExpected " ++ show ec ++ " but found " ++ show ac
+        where errMsg = show e
+              prefix = "Type Error in right argument of "
+              carets = replicate (length prefix) ' ' ++ replicate (length errMsg) '^'
+
+instance Exception ExError
 
 data Ex = Var Text
         | LitB Bool
@@ -145,3 +175,105 @@ evalIBOp e1 e2 op r =
   case (evalEx e1 r, evalEx e2 r) of
     (Just (LitI a), Just (LitI b)) -> Just $ LitB $ op a b
     _ -> Nothing
+
+checkEx :: Ex -> TRow -> Either ExError TCol
+checkEx (Var v) rt =
+  case O.lookup v rt of
+    Just t -> Right t
+    Nothing -> Left $ MissingColumnError v
+checkEx (LitB _) _ = Right BCol
+checkEx (LitI _) _ = Right ICol
+checkEx (LitS _) _ = Right SCol
+checkEx (Not e) rt =
+  case checkEx e rt of
+    Left err -> Left err
+    Right BCol -> Right BCol
+    Right t -> Left $ TypeError (Not e) BCol t
+checkEx (Eq e1 e2) rt =
+  case (checkEx e1 rt, checkEx e2 rt) of
+    (Left err, _) -> Left err
+    (_, Left err) -> Left err
+    (Right t1, Right t2) ->
+      if t1 == t2
+      then Right BCol
+      else Left $ TypeErrorRight (Eq e1 e2) t1 t2 -- 2nd is always wrong on mismatch
+checkEx (NEq e1 e2) rt =
+  case (checkEx e1 rt, checkEx e2 rt) of
+    (Left err, _) -> Left err
+    (_, Left err) -> Left err
+    (Right t1, Right t2) ->
+      if t1 /= t2
+      then Right BCol
+      else Left $ TypeErrorRight (NEq e1 e2) t1 t2 -- 2nd is always wrong on mismatch
+checkEx (And e1 e2) rt =
+  case (checkEx e1 rt, checkEx e2 rt) of
+    (Left err, _) -> Left err
+    (_, Left err) -> Left err
+    (Right BCol, Right BCol) -> Right BCol
+    (Right BCol, Right t) -> Left $ TypeErrorRight (And e1 e2) BCol t
+    (Right t, Right BCol) -> Left $ TypeErrorLeft (And e1 e2) BCol t
+    (Right t, Right _) -> Left $ TypeErrorLeft (And e1 e2) BCol t -- 1st is wrong when both wrong
+checkEx (Or e1 e2) rt =
+  case (checkEx e1 rt, checkEx e2 rt) of
+    (Left err, _) -> Left err
+    (_, Left err) -> Left err
+    (Right BCol, Right BCol) -> Right BCol
+    (Right BCol, Right t) -> Left $ TypeErrorRight (Or e1 e2) BCol t
+    (Right t, Right BCol) -> Left $ TypeErrorLeft (Or e1 e2) BCol t
+    (Right t, Right _) -> Left $ TypeErrorLeft (Or e1 e2) BCol t -- 1st is wrong when both wrong
+checkEx (Add e1 e2) rt =
+  case (checkEx e1 rt, checkEx e2 rt) of
+    (Left err, _) -> Left err
+    (_, Left err) -> Left err
+    (Right ICol, Right ICol) -> Right ICol
+    (Right ICol, Right t) -> Left $ TypeErrorRight (Add e1 e2) ICol t
+    (Right t, Right ICol) -> Left $ TypeErrorLeft (Add e1 e2) ICol t
+    (Right t, Right _) -> Left $ TypeErrorLeft (Add e1 e2) ICol t -- 1st is wrong when both wrong
+checkEx (Mul e1 e2) rt =
+  case (checkEx e1 rt, checkEx e2 rt) of
+    (Left err, _) -> Left err
+    (_, Left err) -> Left err
+    (Right ICol, Right ICol) -> Right ICol
+    (Right ICol, Right t) -> Left $ TypeErrorRight (Mul e1 e2) ICol t
+    (Right t, Right ICol) -> Left $ TypeErrorLeft (Mul e1 e2) ICol t
+    (Right t, Right _) -> Left $ TypeErrorLeft (Mul e1 e2) ICol t -- 1st is wrong when both wrong
+checkEx (Lt e1 e2) rt =
+  case (checkEx e1 rt, checkEx e2 rt) of
+    (Left err, _) -> Left err
+    (_, Left err) -> Left err
+    (Right ICol, Right ICol) -> Right BCol
+    (Right ICol, Right t) -> Left $ TypeErrorRight (Lt e1 e2) ICol t
+    (Right t, Right ICol) -> Left $ TypeErrorLeft (Lt e1 e2) ICol t
+    (Right t, Right _) -> Left $ TypeErrorLeft (Lt e1 e2) ICol t -- 1st is wrong when both wrong
+checkEx (Gt e1 e2) rt =
+  case (checkEx e1 rt, checkEx e2 rt) of
+    (Left err, _) -> Left err
+    (_, Left err) -> Left err
+    (Right ICol, Right ICol) -> Right BCol
+    (Right ICol, Right t) -> Left $ TypeErrorRight (Gt e1 e2) ICol t
+    (Right t, Right ICol) -> Left $ TypeErrorLeft (Gt e1 e2) ICol t
+    (Right t, Right _) -> Left $ TypeErrorLeft (Gt e1 e2) ICol t -- 1st is wrong when both wrong
+checkEx (LtE e1 e2) rt =
+  case (checkEx e1 rt, checkEx e2 rt) of
+    (Left err, _) -> Left err
+    (_, Left err) -> Left err
+    (Right ICol, Right ICol) -> Right BCol
+    (Right ICol, Right t) -> Left $ TypeErrorRight (LtE e1 e2) ICol t
+    (Right t, Right ICol) -> Left $ TypeErrorLeft (LtE e1 e2) ICol t
+    (Right t, Right _) -> Left $ TypeErrorLeft (LtE e1 e2) ICol t -- 1st is wrong when both wrong
+checkEx (GtE e1 e2) rt =
+  case (checkEx e1 rt, checkEx e2 rt) of
+    (Left err, _) -> Left err
+    (_, Left err) -> Left err
+    (Right ICol, Right ICol) -> Right BCol
+    (Right ICol, Right t) -> Left $ TypeErrorRight (GtE e1 e2) ICol t
+    (Right t, Right ICol) -> Left $ TypeErrorLeft (GtE e1 e2) ICol t
+    (Right t, Right _) -> Left $ TypeErrorLeft (GtE e1 e2) ICol t -- 1st is wrong when both wrong
+checkEx (Cat e1 e2) rt =
+  case (checkEx e1 rt, checkEx e2 rt) of
+    (Left err, _) -> Left err
+    (_, Left err) -> Left err
+    (Right SCol, Right SCol) -> Right SCol
+    (Right SCol, Right t) -> Left $ TypeErrorRight (Cat e1 e2) SCol t
+    (Right t, Right SCol) -> Left $ TypeErrorLeft (Cat e1 e2) SCol t
+    (Right t, Right _) -> Left $ TypeErrorLeft (Cat e1 e2) SCol t -- 1st is wrong when both wrong

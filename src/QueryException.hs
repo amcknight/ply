@@ -5,5 +5,8 @@ module QueryException
 import Control.Exception.Base (Exception)
 import Data.Text (Text)
 
-data QueryException = ParseException Text | MissingColumnsException Text deriving Show
+data QueryException = ParseException Text
+                    | MissingColumnsException Text
+                    | TypeCheckException Text
+                    deriving Show
 instance Exception QueryException

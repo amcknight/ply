@@ -1,27 +1,31 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module CsvSql
-  ( go
+  ( parseAndProcess
   ) where
 
 import Data.ByteString.Lazy as B (ByteString, readFile)
-import Data.Text as T (Text, unlines, takeEnd, unpack)
-import Query (Query, table)
+import Data.Text as T (Text, unlines, takeEnd, unpack, pack)
+import Query (Query, table, condition)
+import Expression (checkEx, ExError, Ex(LitB))
 import Loader (loadCsv)
 import Runner (run)
 import Formatter (toMsg)
 import Parser (parse)
+import Element (Row, TCol(BCol), tableType)
+import QueryException (QueryException(TypeCheckException))
+import Data.Maybe (fromMaybe)
 
-go :: Text -> IO Text
-go input =
+parseAndProcess :: Text -> IO Text
+parseAndProcess input =
   case parse input of
-    Left errorStr -> pure errorStr
-    Right query -> process query
+    Left errStr -> pure errStr
+    Right query -> readAndProcess query
 
-process :: Query -> IO Text
-process query = do
+readAndProcess :: Query -> IO Text
+readAndProcess query = do
   csvData <- (B.readFile . unpack . csvPath) query
-  pure $ runQuery query csvData
+  pure $ loadCsvAndProcess query csvData
 
 csvPath :: Query -> Text
 csvPath query =
@@ -31,8 +35,29 @@ csvPath query =
   where fromPath = table query
         csvExtension = ".csv"
 
-runQuery :: Query -> ByteString -> Text
-runQuery query csvData =
+loadCsvAndProcess :: Query -> ByteString -> Text
+loadCsvAndProcess query csvData =
   case loadCsv csvData of
     Left err -> err
-    Right rows -> (T.unlines . fmap toMsg . run query) rows
+    Right rows -> checkWhereAndProcess query rows
+
+checkWhereAndProcess :: Query -> [Row] -> Text
+checkWhereAndProcess query = checkExAndProcess query ex
+  where ex = fromMaybe (LitB True) (condition query)
+
+checkExAndProcess :: Query -> Ex -> [Row] -> Text
+checkExAndProcess query ex rows =
+  case typeCheck ex rows of
+    Left err -> (pack . show) err
+    Right BCol -> process query rows
+    Right t -> typeCheckException t
+
+typeCheck :: Ex -> [Row] -> Either ExError TCol
+typeCheck ex = checkEx ex . tableType . head
+
+typeCheckException :: TCol -> Text
+typeCheckException t =
+  pack . show $ TypeCheckException $ pack $ "WHERE clause evaluated to " ++ show t ++ " instead of Bool"
+
+process :: Query -> [Row] -> Text
+process query = T.unlines . fmap toMsg . run query

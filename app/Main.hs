@@ -1,13 +1,13 @@
 module Main where
 
 import System.Environment (getArgs)
-import CsvSql (go)
+import CsvSql (parseAndProcess)
 import Data.Text (Text, pack, unpack)
 
 main :: IO ()
 main = do
   query <- optParse
-  res <- go query
+  res <- parseAndProcess query
   putStr $ unpack res
 
 optParse :: IO Text
