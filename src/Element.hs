@@ -14,7 +14,12 @@ data Elem = SElem Text | IElem Int | BElem Bool deriving (Eq, Show)
 
 type Row = OMap Text Elem
 
-data TCol = SCol | ICol | BCol deriving (Eq, Show)
+data TCol = SCol | ICol | BCol deriving Eq
+instance Show TCol where
+  show SCol = "String"
+  show ICol = "Integer"
+  show BCol = "Boolean"
+
 type TRow = OMap Text TCol
 
 tableType :: Row -> TRow

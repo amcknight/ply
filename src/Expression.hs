@@ -10,7 +10,7 @@ module Expression
 
 import Element
 import ParseUtils
-import Data.Text (Text, pack)
+import Data.Text (Text, pack, unpack)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
@@ -18,13 +18,31 @@ import Control.Exception.Base (Exception)
 import Control.Monad.Combinators.Expr
 import Data.Map.Ordered as O (lookup)
 
-data ExError = ParseError Text
-             | MissingColumnError Text
+data ExError = MissingColumnError Text
              -- Offending Expression, Expected Type, Actual Type
              | TypeError      Ex TCol TCol
              | TypeErrorLeft  Ex TCol TCol
              | TypeErrorRight Ex TCol TCol
-             deriving Show
+
+instance Show ExError where
+  show (MissingColumnError name) =
+    "Missing column: " ++ unpack name
+  show (TypeError e ec ac) =
+    prefix ++ errMsg ++ "\n" ++ carets ++ "\nExpected " ++ show ec ++ " but found " ++ show ac
+    where errMsg = show e
+          prefix = "Type Error in "
+          carets = replicate (length prefix) ' ' ++ replicate (length errMsg) '^'
+  show (TypeErrorLeft e ec ac) =
+    prefix ++ errMsg ++ "\n" ++ carets ++ "\nExpected " ++ show ec ++ " but found " ++ show ac
+    where errMsg = show e
+          prefix = "Type Error in left argument of "
+          carets = replicate (length prefix) ' ' ++ replicate (length errMsg) '^'
+  show (TypeErrorRight e ec ac) =
+    prefix ++ errMsg ++ "\n" ++ carets ++ "\nExpected " ++ show ec ++ " but found " ++ show ac
+        where errMsg = show e
+              prefix = "Type Error in right argument of "
+              carets = replicate (length prefix) ' ' ++ replicate (length errMsg) '^'
+
 instance Exception ExError
 
 data Ex = Var Text
