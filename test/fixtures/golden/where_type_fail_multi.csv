@@ -1,0 +1,3 @@
+Type Error in right argument of Cat (LitS "Hello ") (LitB True)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Expected String but found Boolean

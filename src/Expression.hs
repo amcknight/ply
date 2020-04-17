@@ -59,14 +59,16 @@ data Ex = Var Text
         | Cat Ex Ex
         deriving (Show, Eq)
 
+-- TODO: Duplicated in Parser under colName. Should bring together in a common col/var/header module
 pVar :: Parser Ex
 pVar = Var . pack <$> lex0 (some (alphaNumChar <|> char '_'))
 
-toLitB :: Text -> Ex
-toLitB "False" = LitB False
-toLitB "True" = LitB True
 pLitB :: Parser Ex
-pLitB = toLitB <$> lex0 (string "True" <|> string "False")
+pLitB = true <|> false
+true :: Parser Ex
+true = LitB True <$ lex0 (string "True")
+false :: Parser Ex
+false = LitB False <$ lex0 (string "False")
 
 pLitI :: Parser Ex
 pLitI = LitI <$> lex0 L.decimal

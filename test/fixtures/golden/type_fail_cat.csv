@@ -1,3 +1,0 @@
-Type Error in right argument of Cat (LitS "Hello #") (LitI 3)
-                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Expected String but found Integer
