@@ -6,6 +6,7 @@ module Expression
   , parseEx
   , evalEx
   , checkEx
+  , vars
   , isTrue
   ) where
 
@@ -18,6 +19,7 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Exception.Base (Exception)
 import Control.Monad.Combinators.Expr
 import Data.Map.Ordered as O (lookup)
+import qualified Data.Set as S (Set, empty, fromList, toList)
 
 data ExError = MissingColumnError Text
              -- Offending Expression, Expected Type, Actual Type
@@ -86,8 +88,9 @@ ops =
     ]
   , [ InfixL (Cat <$ lex0 (string "++"))
     ]
+  , [ InfixL (Mul <$ lex0 (string "*"))
+    ]
   , [ InfixL (Add <$ lex0 (string "+"))
-    , InfixL (Mul <$ lex0 (string "*"))
     ]
   , [ InfixL (LtE <$ lex0 (string "<="))
     , InfixL (GtE <$ lex0 (string ">="))
@@ -108,6 +111,27 @@ parseEx = makeExprParser pTerm ops
 
 isTrue :: Ex -> Row -> Bool
 isTrue ex row = evalEx ex row == Just (LitB True)
+
+vars :: Ex -> [Text]
+vars = S.toList . varSet
+
+varSet :: Ex -> S.Set Text
+varSet (Var t) = S.fromList [t]
+varSet (LitB _) = S.empty
+varSet (LitI _) = S.empty
+varSet (LitS _) = S.empty
+varSet (Not e) = varSet e
+varSet (Eq e1 e2) = varSet e1 <> varSet e2
+varSet (NEq e1 e2) = varSet e1 <> varSet e2
+varSet (And e1 e2) = varSet e1 <> varSet e2
+varSet (Or  e1 e2) = varSet e1 <> varSet e2
+varSet (Add e1 e2) = varSet e1 <> varSet e2
+varSet (Mul e1 e2) = varSet e1 <> varSet e2
+varSet (Lt  e1 e2) = varSet e1 <> varSet e2
+varSet (Gt  e1 e2) = varSet e1 <> varSet e2
+varSet (LtE e1 e2) = varSet e1 <> varSet e2
+varSet (GtE e1 e2) = varSet e1 <> varSet e2
+varSet (Cat e1 e2) = varSet e1 <> varSet e2
 
 evalEx :: Ex -> Row -> Maybe Ex
 evalEx (Var v) r =
