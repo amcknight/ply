@@ -26,23 +26,16 @@ data ExError = MissingColumnError Text
              | TypeErrorRight Ex TCol TCol
 
 instance Show ExError where
-  show (MissingColumnError name) =
-    "Missing column: " ++ unpack name
-  show (TypeError e ec ac) =
-    prefix ++ errMsg ++ "\n" ++ carets ++ "\nExpected " ++ show ec ++ " but found " ++ show ac
-    where errMsg = show e
-          prefix = "Type Error in "
-          carets = replicate (length prefix) ' ' ++ replicate (length errMsg) '^'
-  show (TypeErrorLeft e ec ac) =
-    prefix ++ errMsg ++ "\n" ++ carets ++ "\nExpected " ++ show ec ++ " but found " ++ show ac
-    where errMsg = show e
-          prefix = "Type Error in left argument of "
-          carets = replicate (length prefix) ' ' ++ replicate (length errMsg) '^'
-  show (TypeErrorRight e ec ac) =
-    prefix ++ errMsg ++ "\n" ++ carets ++ "\nExpected " ++ show ec ++ " but found " ++ show ac
-        where errMsg = show e
-              prefix = "Type Error in right argument of "
-              carets = replicate (length prefix) ' ' ++ replicate (length errMsg) '^'
+  show (MissingColumnError name) = "Missing column: " ++ unpack name
+  show (TypeError      e ec ac) = buildTypeErrorMsg e ec ac "Type Error in "
+  show (TypeErrorLeft  e ec ac) = buildTypeErrorMsg e ec ac "Type Error in left argument of "
+  show (TypeErrorRight e ec ac) = buildTypeErrorMsg e ec ac "Type Error in right argument of "
+
+buildTypeErrorMsg :: Ex -> TCol -> TCol -> String -> String
+buildTypeErrorMsg e ec ac msg =
+  msg ++ errMsg ++ "\n" ++ carets ++ "\nExpected " ++ show ec ++ " but found " ++ show ac
+  where errMsg = show e
+        carets = replicate (length msg) ' ' ++ replicate (length errMsg) '^'
 
 instance Exception ExError
 
