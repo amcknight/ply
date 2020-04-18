@@ -6,7 +6,8 @@ module CsvSql
 
 import Data.ByteString.Lazy as B (ByteString, readFile)
 import Data.Text as T (Text, takeEnd, unpack, pack)
-import Query (Query, table, condition, selection, Selection(..))
+import Query.Query (Query, table, condition, select)
+import Query.Select
 import Expression.Expr
 import Expression.Check
 import Loader (loadCsv)
@@ -54,9 +55,9 @@ checkWhereExAndProcess query ex tab =
 
 checkSelectExAndProcess :: Query -> Table -> Text
 checkSelectExAndProcess query tab =
-  case selection query of
-    All -> process query tab
-    RowEx r -> case traverse (checkSelCol tab) r of
+  case select query of
+    Select All -> process query tab
+    Select (RowEx r) -> case traverse (checkSelCol tab) r of
       Left err -> (pack . show) err
       Right _ -> process query tab
 
