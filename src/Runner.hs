@@ -5,7 +5,8 @@ module Runner
   ) where
 
 import Query (Query, Col, selection, condition, evalSel)
-import Element (Row, Elem(..))
+import Element (Elem(..))
+import Table (Row, Table, rows, buildTable)
 import QueryException (QueryException(..))
 import Data.Map.Ordered as DMO (lookup, fromList)
 import Control.Exception.Base (throw)
@@ -14,8 +15,8 @@ import Expression (isTrue)
 newtype MissingColumn = MissingColumn Col
 
 -- Query -> CSV Rows -> Output Row
-run :: Query -> [Row] -> [Row]
-run query = fmap (select query) . filter (whereFilter query)
+run :: Query -> Table -> Table
+run query tab = buildTable ((fmap (evalSel query) . filter (whereFilter query)) (rows tab))
 
 -- Query Select Columns -> CSV Row -> Selected CSV Row
 select :: Query -> Row -> Row

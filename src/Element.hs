@@ -1,19 +1,21 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Element
   ( Elem(..)
-  , Row
-  , TRow
   , TCol(..)
-  , empty
-  , tableType
+  , toElem
+  , colType
   ) where
 
-import Data.Text (Text)
-import Data.Map.Ordered as O (OMap, empty)
-import Utils (omap)
+import Data.Text (Text, unpack)
+import Data.Text.Read (decimal)
 
-data Elem = SElem Text | IElem Int | BElem Bool deriving (Eq, Show)
+data Elem = SElem Text | IElem Int | BElem Bool deriving Eq
+instance Show Elem where
+  show (SElem s) = unpack s
+  show (IElem i) = show i
+  show (BElem b) = show b
 
-type Row = OMap Text Elem
 
 data TCol = SCol | ICol | BCol deriving Eq
 instance Show TCol where
@@ -21,12 +23,15 @@ instance Show TCol where
   show ICol = "Integer"
   show BCol = "Boolean"
 
-type TRow = OMap Text TCol
-
-tableType :: Row -> TRow
-tableType = omap colType
-
 colType :: Elem -> TCol
 colType (SElem _) = SCol
 colType (IElem _) = ICol
 colType (BElem _) = BCol
+
+toElem :: Text -> Elem
+toElem "True" = BElem True
+toElem "False" = BElem False
+toElem s =
+  case decimal s of
+    Right (i, _) -> IElem i
+    Left _ -> SElem s

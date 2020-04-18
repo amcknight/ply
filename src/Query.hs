@@ -15,7 +15,8 @@ module Query
 import Expression (Ex(..), evalEx)
 import Data.Text (Text, pack)
 import Data.Map.Ordered (OMap)
-import Element (Row, Elem(..))
+import Element (Elem(..))
+import Table (Row)
 import Utils (omap)
 import QueryException
 import Control.Exception.Base (throw)

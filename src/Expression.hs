@@ -9,7 +9,8 @@ module Expression
   , isTrue
   ) where
 
-import Element
+import Element (Elem(..), TCol(..))
+import Table
 import ParseUtils
 import Data.Text (Text, pack, unpack)
 import Text.Megaparsec
