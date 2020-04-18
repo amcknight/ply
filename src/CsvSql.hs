@@ -12,11 +12,10 @@ import Query.From
 import Query.Where
 import Expression.Expr
 import Expression.Check
-import Loader (loadCsv)
 import Runner (run)
-import Parser (parse)
 import Element.Elem (ElemT(BElemT))
 import Table.Table (Table, types)
+import Table.Loader
 import Data.Maybe (fromMaybe)
 
 parseAndProcess :: Text -> IO Text

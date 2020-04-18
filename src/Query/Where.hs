@@ -8,7 +8,7 @@ module Query.Where
 import Expression.Expr
 import Expression.Parse
 import Text.Megaparsec.Char (string')
-import ParseUtils (Parser, lex1)
+import Parser (Parser, lex1)
 
 newtype Where = Where Ex deriving (Show, Eq)
 

@@ -4,7 +4,7 @@ module Name
   ) where
 
 import Data.Text (Text, pack)
-import ParseUtils (Parser, lex0)
+import Parser (Parser, lex0)
 import Text.Megaparsec hiding (State)
 import Text.Megaparsec.Char (char, alphaNumChar)
 

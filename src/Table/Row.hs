@@ -11,7 +11,7 @@ import Data.Text as T (Text)
 import qualified Data.Map.Ordered as O (OMap, empty)
 import Element.Elem as E
 import Data.List (intercalate)
-import Utils (omap, ovals)
+import Table.Utils (omap, ovals)
 
 type Row = O.OMap Text Elem
 type RowT = O.OMap Text ElemT

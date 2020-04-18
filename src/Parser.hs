@@ -1,13 +1,19 @@
-{-# LANGUAGE OverloadedStrings #-}
+module Parser
+  ( Parser
+  , lex0
+  , lex1
+  ) where
 
-module Parser where
-
-import Query.Query
-import Data.Text (Text, pack)
+import Data.Void
+import Data.Text (Text)
 import Text.Megaparsec hiding (State)
+import Text.Megaparsec.Char (space, space1)
+import qualified Text.Megaparsec.Char.Lexer as L
 
-parse :: Text -> Either Text Query
-parse query =
-  case runParser (pQuery <* eof) "" query of
-    Left errorBundle -> Left $ pack $ errorBundlePretty errorBundle
-    Right q -> Right q
+type Parser = Parsec Void Text
+
+lex0 :: Parser a -> Parser a
+lex0 = L.lexeme space
+
+lex1 :: Parser a -> Parser a
+lex1 = L.lexeme space1

@@ -7,7 +7,7 @@ module Table.Table
 
 import Table.Row as R
 import Data.Text as T (unpack)
-import Utils (okeys)
+import Table.Utils (okeys)
 import Data.List (intercalate)
 
 data Table = Table

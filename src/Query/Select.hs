@@ -9,16 +9,16 @@ module Query.Select
   ) where
 
 import Name
+import Parser
 import Element.Elem
 import Expression.Expr
 import Expression.Parse
-import Data.Map.Ordered (OMap)
 import Table.Row (Row)
-import Utils (omap)
+import Table.Utils (omap)
 import Expression.Eval (evalEx)
+import Data.Map.Ordered (OMap)
 import Text.Megaparsec hiding (State)
 import Text.Megaparsec.Char (char, string')
-import ParseUtils (Parser, lex1, lex0)
 import Data.Map.Ordered as O (fromList)
 
 data Selection = All | RowEx (OMap Name Ex) deriving (Show, Eq)

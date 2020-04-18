@@ -1,4 +1,4 @@
-module Loader
+module Table.Loader
   ( loadCsv
   ) where
 

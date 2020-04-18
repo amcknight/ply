@@ -9,7 +9,7 @@ module Query.From
 import Text.Megaparsec hiding (State)
 import Text.Megaparsec.Char (char, string', alphaNumChar)
 import Data.Text (Text, pack)
-import ParseUtils (Parser, lex1)
+import Parser (Parser, lex1)
 
 type TableName = Text
 newtype From = From Text deriving (Show, Eq)
