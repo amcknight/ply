@@ -21,10 +21,13 @@ pQuery :: Parser Q.Query
 pQuery = Q.Query <$> pSelect <*> pFrom <*> optional pWhere <* eof
 
 pSelect :: Parser Q.Select
-pSelect = Q.Select <$> (lex1 (string' "SELECT") *> columns)
+pSelect = Q.Select <$> (lex1 (string' "SELECT") *> (star <|> columns))
+
+star :: Parser Q.Selection
+star = Q.All <$ lex1 (char '*')
 
 columns :: Parser Q.Selection
-columns = O.fromList <$> columns'
+columns = Q.RowEx . O.fromList <$> columns'
 
 columns' :: Parser [(Q.Col, Ex)]
 columns' = do

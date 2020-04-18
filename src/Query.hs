@@ -1,7 +1,7 @@
 module Query
   ( Query(..)
   , Select(..)
-  , Selection
+  , Selection(..)
   , Col
   , From(..)
   , Table
@@ -22,7 +22,7 @@ import Control.Exception.Base (throw)
 
 -- Select
 type Col = Text
-type Selection = OMap Col Ex
+data Selection = All | RowEx (OMap Col Ex) deriving (Show, Eq)
 newtype Select = Select Selection deriving (Show, Eq)
 
 -- From
@@ -42,7 +42,10 @@ selection :: Query -> Selection
 selection (Query (Select ss) _ _) = ss
 
 evalSel :: Query -> Row -> Row
-evalSel query csvRow = omap (toElem csvRow) . selection $ query
+evalSel query csvRow =
+  case selection query of
+    All -> csvRow
+    RowEx r -> omap (toElem csvRow) r
 
 -- TODO: toElem should == flip, because evalEx should return an Elem
 toElem :: Row -> Ex -> Elem
