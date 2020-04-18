@@ -7,7 +7,7 @@ import Data.Vector (Vector, toList)
 import Data.Map.Ordered (fromList)
 import Data.Csv (decode, HasHeader(..))
 import Data.Text (Text, pack, strip)
-import Element (toElem)
+import Element.Parse
 import Table (Table(..), Row, empty, buildTable)
 
 type Rec = [Text]

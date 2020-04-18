@@ -4,7 +4,7 @@ module Runner
 
 import Query (Query, condition, evalSel)
 import Table (Row, Table, rows, buildTable)
-import Expression (isTrue)
+import Expression.Eval (isTrue)
 
 run :: Query -> Table -> Table
 run query tab = buildTable outRows

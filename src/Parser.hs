@@ -4,7 +4,8 @@
 module Parser where
 
 import qualified Query as Q
-import Expression (parseEx, Ex(..))
+import Expression.Expr (Ex(..))
+import Expression.Parse
 import ParseUtils
 import Data.Text (Text, pack)
 import Text.Megaparsec hiding (State)

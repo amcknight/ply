@@ -1,7 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Query as Q
-import Expression
 import CsvSql (parseAndProcess)
 import Test.Tasty
 import Test.Tasty.HUnit

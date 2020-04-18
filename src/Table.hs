@@ -11,7 +11,7 @@ module Table
 
 import Data.Text as T (Text, unpack)
 import qualified Data.Map.Ordered as O (OMap, empty, assocs)
-import Element (Elem(..), TCol(..), colType)
+import Element.Elem
 import Utils (omap)
 import Data.List (intercalate)
 
@@ -28,7 +28,7 @@ toMsg = intercalate ", " . fmap (show . snd) . O.assocs
 rows :: Table -> [Row]
 rows (Table _ rs) = rs
 
-type TRow = O.OMap Text TCol
+type TRow = O.OMap Text ElemT
 type Row = O.OMap Text Elem
 
 tableType :: Table -> TRow
@@ -38,7 +38,7 @@ buildTable :: [Row] -> Table
 buildTable rs = Table (extractTRow rs) rs
 
 extractTRow :: [Row] -> TRow
-extractTRow rs = omap colType (head rs)
+extractTRow rs = omap getType (head rs)
 
 empty :: Table
 empty = Table O.empty []

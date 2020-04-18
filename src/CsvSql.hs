@@ -5,15 +5,15 @@ module CsvSql
   ) where
 
 import Data.ByteString.Lazy as B (ByteString, readFile)
-import Data.Text as T (Text, unlines, takeEnd, unpack, pack)
+import Data.Text as T (Text, takeEnd, unpack, pack)
 import Query (Query, table, condition, selection, Selection(..))
-import Expression (checkEx, ExError, Ex(LitB))
+import Expression.Expr
+import Expression.Check
 import Loader (loadCsv)
 import Runner (run)
 import Parser (parse)
-import Element (TCol(BCol))
-import Table (Table, Row, tableType)
-import QueryException (QueryException(TypeCheckException))
+import Element.Elem (ElemT(BElemT))
+import Table (Table, tableType)
 import Data.Maybe (fromMaybe)
 
 parseAndProcess :: Text -> IO Text
@@ -49,8 +49,8 @@ checkWhereExAndProcess :: Query -> Ex -> Table -> Text
 checkWhereExAndProcess query ex tab =
   case typeCheck ex tab of
     Left err -> (pack . show) err
-    Right BCol -> checkSelectExAndProcess query tab
-    Right t -> typeCheckException t
+    Right BElemT -> checkSelectExAndProcess query tab
+    Right t -> pack $ "WHERE clause evaluated to " ++ show t ++ " instead of Bool"
 
 checkSelectExAndProcess :: Query -> Table -> Text
 checkSelectExAndProcess query tab =
@@ -60,15 +60,11 @@ checkSelectExAndProcess query tab =
       Left err -> (pack . show) err
       Right _ -> process query tab
 
-checkSelCol :: Table -> Ex -> Either ExError TCol
+checkSelCol :: Table -> Ex -> Either ExError ElemT
 checkSelCol tab ex = typeCheck ex tab
 
-typeCheck :: Ex -> Table -> Either ExError TCol
+typeCheck :: Ex -> Table -> Either ExError ElemT
 typeCheck ex = checkEx ex . tableType
-
-typeCheckException :: TCol -> Text
-typeCheckException t =
-  pack . show $ TypeCheckException $ pack $ "WHERE clause evaluated to " ++ show t ++ " instead of Bool"
 
 process :: Query -> Table -> Text
 process query = pack . show . run query

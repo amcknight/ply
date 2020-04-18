@@ -12,14 +12,13 @@ module Query
   , condition
   ) where
 
-import Expression (Ex(..), evalEx)
-import Data.Text (Text, pack)
+import Expression.Expr
+import Expression.Eval
+import Data.Text (Text)
 import Data.Map.Ordered (OMap)
-import Element (Elem(..))
+import Element.Elem (Elem(..))
 import Table (Row)
 import Utils (omap)
-import QueryException
-import Control.Exception.Base (throw)
 
 -- Select
 type Col = Text
@@ -46,17 +45,10 @@ evalSel :: Query -> Row -> Row
 evalSel query csvRow =
   case selection query of
     All -> csvRow
-    RowEx r -> omap (toElem csvRow) r
+    RowEx rs -> omap (evalRow csvRow) rs
 
--- TODO: toElem should == flip, because evalEx should return an Elem
-toElem :: Row -> Ex -> Elem
-toElem csvRow ex =
-  case evalEx ex csvRow of
-    Just (LitB v) -> BElem v
-    Just (LitI v) -> IElem v
-    Just (LitS v) -> SElem v
-    Just _ -> throw $ TypeCheckException $ pack $ "Evaluation Error: " ++ show ex
-    Nothing -> throw $ TypeCheckException $ pack $ "Failed to Evaluate SELECT expression: " ++ show ex
+evalRow :: Row -> Ex -> Elem
+evalRow csvRow ex = evalEx ex csvRow
 
 table :: Query -> Text
 table (Query _ (From t) _) = t
