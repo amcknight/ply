@@ -6,7 +6,6 @@ module Expression
   , parseEx
   , evalEx
   , checkEx
-  , vars
   , isTrue
   ) where
 
@@ -113,27 +112,6 @@ parseEx = makeExprParser pTerm ops
 
 isTrue :: Ex -> Row -> Bool
 isTrue ex row = evalEx ex row == Just (LitB True)
-
-vars :: Ex -> [Text]
-vars = S.toList . varSet
-
-varSet :: Ex -> S.Set Text
-varSet (Var t) = S.fromList [t]
-varSet (LitB _) = S.empty
-varSet (LitI _) = S.empty
-varSet (LitS _) = S.empty
-varSet (Not e) = varSet e
-varSet (Eq e1 e2) = varSet e1 <> varSet e2
-varSet (NEq e1 e2) = varSet e1 <> varSet e2
-varSet (And e1 e2) = varSet e1 <> varSet e2
-varSet (Or  e1 e2) = varSet e1 <> varSet e2
-varSet (Add e1 e2) = varSet e1 <> varSet e2
-varSet (Mul e1 e2) = varSet e1 <> varSet e2
-varSet (Lt  e1 e2) = varSet e1 <> varSet e2
-varSet (Gt  e1 e2) = varSet e1 <> varSet e2
-varSet (LtE e1 e2) = varSet e1 <> varSet e2
-varSet (GtE e1 e2) = varSet e1 <> varSet e2
-varSet (Cat e1 e2) = varSet e1 <> varSet e2
 
 evalEx :: Ex -> Row -> Maybe Ex
 evalEx (Var v) r =
