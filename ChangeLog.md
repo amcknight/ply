@@ -3,6 +3,7 @@
 ## v0.0.8
 * Added Bool support in input tables
 * Added headers in output tables
+* Factoring and code cleanup in prep of v0.1
 
 ## v0.0.7
 * SELECT Expressions
