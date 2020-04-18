@@ -10,9 +10,9 @@ import Query (Query, table, condition, selection, Selection(..))
 import Expression (checkEx, ExError, Ex(LitB))
 import Loader (loadCsv)
 import Runner (run)
-import Formatter (toMsg)
 import Parser (parse)
-import Element (Row, TCol(BCol), tableType)
+import Element (TCol(BCol))
+import Table (Table, Row, tableType)
 import QueryException (QueryException(TypeCheckException))
 import Data.Maybe (fromMaybe)
 
@@ -41,34 +41,34 @@ loadCsvAndProcess query csvData =
     Left err -> err
     Right rows -> checkAndProcess query rows
 
-checkAndProcess :: Query -> [Row] -> Text
+checkAndProcess :: Query -> Table -> Text
 checkAndProcess query = checkWhereExAndProcess query ex
   where ex = fromMaybe (LitB True) (condition query)
 
-checkWhereExAndProcess :: Query -> Ex -> [Row] -> Text
-checkWhereExAndProcess query ex rows =
-  case typeCheck ex (head rows) of
+checkWhereExAndProcess :: Query -> Ex -> Table -> Text
+checkWhereExAndProcess query ex tab =
+  case typeCheck ex tab of
     Left err -> (pack . show) err
-    Right BCol -> checkSelectExAndProcess query rows
+    Right BCol -> checkSelectExAndProcess query tab
     Right t -> typeCheckException t
 
-checkSelectExAndProcess :: Query -> [Row] -> Text
-checkSelectExAndProcess query rows =
+checkSelectExAndProcess :: Query -> Table -> Text
+checkSelectExAndProcess query tab =
   case selection query of
-    All -> process query rows
-    RowEx r -> case traverse (checkSelCol (head rows)) r of
+    All -> process query tab
+    RowEx r -> case traverse (checkSelCol tab) r of
       Left err -> (pack . show) err
-      Right _ -> process query rows
+      Right _ -> process query tab
 
-checkSelCol :: Row -> Ex -> Either ExError TCol
-checkSelCol row ex = typeCheck ex row
+checkSelCol :: Table -> Ex -> Either ExError TCol
+checkSelCol tab ex = typeCheck ex tab
 
-typeCheck :: Ex -> Row -> Either ExError TCol
+typeCheck :: Ex -> Table -> Either ExError TCol
 typeCheck ex = checkEx ex . tableType
 
 typeCheckException :: TCol -> Text
 typeCheckException t =
   pack . show $ TypeCheckException $ pack $ "WHERE clause evaluated to " ++ show t ++ " instead of Bool"
 
-process :: Query -> [Row] -> Text
-process query = T.unlines . fmap toMsg . run query
+process :: Query -> Table -> Text
+process query = pack . show . run query

@@ -9,7 +9,8 @@ module Expression
   , isTrue
   ) where
 
-import Element
+import Element (Elem(..), TCol(..))
+import Table
 import ParseUtils
 import Data.Text (Text, pack, unpack)
 import Text.Megaparsec
@@ -18,7 +19,6 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Exception.Base (Exception)
 import Control.Monad.Combinators.Expr
 import Data.Map.Ordered as O (lookup)
-import qualified Data.Set as S (Set, empty, fromList, toList)
 
 data ExError = MissingColumnError Text
              -- Offending Expression, Expected Type, Actual Type
