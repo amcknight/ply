@@ -6,7 +6,7 @@ module CsvSql
 
 import Data.ByteString.Lazy as B (ByteString, readFile)
 import Data.Text as T (Text, takeEnd, unpack, pack)
-import Query.Query (Query, table, condition, select)
+import Query.Query
 import Query.Select
 import Expression.Expr
 import Expression.Check
@@ -16,6 +16,7 @@ import Parser (parse)
 import Element.Elem (ElemT(BElemT))
 import Table (Table, tableType)
 import Data.Maybe (fromMaybe)
+import Query.From
 
 parseAndProcess :: Text -> IO Text
 parseAndProcess input =
@@ -33,7 +34,7 @@ csvPath query =
   if takeEnd 4 fromPath == csvExtension
     then fromPath
     else fromPath <> csvExtension
-  where fromPath = table query
+  where From fromPath = from query
         csvExtension = ".csv"
 
 loadCsvAndProcess :: Query -> ByteString -> Text
