@@ -18,7 +18,6 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Exception.Base (Exception)
 import Control.Monad.Combinators.Expr
 import Data.Map.Ordered as O (lookup)
-import qualified Data.Set as S (Set, empty, fromList, toList)
 
 data ExError = MissingColumnError Text
              -- Offending Expression, Expected Type, Actual Type

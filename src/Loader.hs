@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Loader
   ( loadCsv
   ) where
@@ -33,6 +35,8 @@ deepToList = toList . fmap toList
 
 -- Ultimately this should be a proper value parser
 toElem :: Text -> Elem
+toElem "True" = BElem True
+toElem "False" = BElem False
 toElem s =
   case decimal s of
     Left _ -> SElem s
