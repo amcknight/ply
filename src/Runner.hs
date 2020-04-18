@@ -2,8 +2,9 @@ module Runner
   ( run
   ) where
 
-import Query.Query (Query, condition, select)
+import Query.Query
 import Query.Select
+import Query.Where
 import Table (Row, Table, rows, buildTable)
 import Expression.Eval (isTrue)
 
@@ -16,6 +17,6 @@ run query tab = buildTable outRows
 
 whereFilter :: Query -> Row -> Bool
 whereFilter query row =
-  case condition query of
+  case mWhere query of
     Nothing -> True
-    Just cond -> isTrue cond row
+    Just (Where ex) -> isTrue ex row

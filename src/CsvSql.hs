@@ -8,6 +8,8 @@ import Data.ByteString.Lazy as B (ByteString, readFile)
 import Data.Text as T (Text, takeEnd, unpack, pack)
 import Query.Query
 import Query.Select
+import Query.From
+import Query.Where
 import Expression.Expr
 import Expression.Check
 import Loader (loadCsv)
@@ -16,7 +18,6 @@ import Parser (parse)
 import Element.Elem (ElemT(BElemT))
 import Table (Table, tableType)
 import Data.Maybe (fromMaybe)
-import Query.From
 
 parseAndProcess :: Text -> IO Text
 parseAndProcess input =
@@ -45,7 +46,7 @@ loadCsvAndProcess query csvData =
 
 checkAndProcess :: Query -> Table -> Text
 checkAndProcess query = checkWhereExAndProcess query ex
-  where ex = fromMaybe (LitB True) (condition query)
+  where (Where ex) = fromMaybe (Where (LitB True)) (mWhere query)
 
 checkWhereExAndProcess :: Query -> Ex -> Table -> Text
 checkWhereExAndProcess query ex tab =
