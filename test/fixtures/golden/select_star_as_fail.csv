@@ -1,0 +1,6 @@
+1:10:
+  |
+1 | SELECT * AS star
+  |          ^^^^
+unexpected "AS s"
+expecting "FROM" or white space
