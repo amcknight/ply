@@ -4,35 +4,30 @@ module Table
   , Table(..)
   , buildTable
   , empty
-  , tableType
-  , rows
   , extractTRow
   ) where
 
 import Data.Text as T (Text, unpack)
-import qualified Data.Map.Ordered as O (OMap, empty, assocs)
+import qualified Data.Map.Ordered as O (OMap, empty)
 import Element.Elem
-import Utils (omap)
+import Utils (omap, okeys, ovals)
 import Data.List (intercalate)
 
-data Table = Table TRow [Row]
+data Table = Table
+  { types :: TRow
+  , rows :: [Row]
+  }
 
 instance Show Table where
   show tab = unlines (header:rs)
-    where header = (intercalate ", " . fmap (unpack . fst) . O.assocs) (tableType tab)
+    where header = (intercalate ", " . fmap unpack . okeys) (types tab)
           rs = fmap toMsg (rows tab)
-
-toMsg :: Row -> String
-toMsg = intercalate ", " . fmap (show . snd) . O.assocs
-
-rows :: Table -> [Row]
-rows (Table _ rs) = rs
 
 type TRow = O.OMap Text ElemT
 type Row = O.OMap Text Elem
 
-tableType :: Table -> TRow
-tableType (Table t _) = t
+toMsg :: Row -> String
+toMsg = intercalate ", " . fmap show . ovals
 
 buildTable :: [Row] -> Table
 buildTable rs = Table (extractTRow rs) rs

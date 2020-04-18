@@ -16,7 +16,7 @@ import Loader (loadCsv)
 import Runner (run)
 import Parser (parse)
 import Element.Elem (ElemT(BElemT))
-import Table (Table, tableType)
+import Table (Table, types)
 import Data.Maybe (fromMaybe)
 
 parseAndProcess :: Text -> IO Text
@@ -67,7 +67,7 @@ checkSelCol :: Table -> Ex -> Either ExError ElemT
 checkSelCol tab ex = typeCheck ex tab
 
 typeCheck :: Ex -> Table -> Either ExError ElemT
-typeCheck ex = checkEx ex . tableType
+typeCheck ex = checkEx ex . types
 
 process :: Query -> Table -> Text
 process query = pack . show . run query
