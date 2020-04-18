@@ -9,7 +9,7 @@ module Table
   , extractTRow
   ) where
 
-import Data.Text as T (Text)
+import Data.Text as T (Text, unpack)
 import qualified Data.Map.Ordered as O (OMap, empty, assocs)
 import Element (Elem(..), TCol(..), colType)
 import Utils (omap)
@@ -18,7 +18,9 @@ import Data.List (intercalate)
 data Table = Table TRow [Row]
 
 instance Show Table where
-  show tab = (unlines . fmap toMsg) (rows tab)
+  show tab = unlines (header:rs)
+    where header = (intercalate ", " . fmap (unpack . fst) . O.assocs) (tableType tab)
+          rs = fmap toMsg (rows tab)
 
 toMsg :: Row -> String
 toMsg = intercalate ", " . fmap (show . snd) . O.assocs
