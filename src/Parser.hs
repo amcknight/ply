@@ -1,57 +1,19 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TupleSections #-}
+module Parser
+  ( Parser
+  , lex0
+  , lex1
+  ) where
 
-module Parser where
-
-import qualified Query as Q
-import Expression (parseEx, Ex(..))
-import ParseUtils
-import Data.Text (Text, pack)
+import Data.Void
+import Data.Text (Text)
 import Text.Megaparsec hiding (State)
-import Text.Megaparsec.Char (char, string', alphaNumChar)
-import Data.Map.Ordered as O (fromList)
+import Text.Megaparsec.Char (space, space1)
+import qualified Text.Megaparsec.Char.Lexer as L
 
-parse :: Text -> Either Text Q.Query
-parse query =
-  case runParser pQuery "" query of
-    Left errorBundle -> Left $ pack $ errorBundlePretty errorBundle
-    Right q -> Right q
+type Parser = Parsec Void Text
 
-pQuery :: Parser Q.Query
-pQuery = Q.Query <$> pSelect <*> pFrom <*> optional pWhere <* eof
+lex0 :: Parser a -> Parser a
+lex0 = L.lexeme space
 
-pSelect :: Parser Q.Select
-pSelect = Q.Select <$> (lex1 (string' "SELECT") *> (star <|> columns))
-
-star :: Parser Q.Selection
-star = Q.All <$ lex1 (char '*')
-
-columns :: Parser Q.Selection
-columns = Q.RowEx . O.fromList <$> columns'
-
-columns' :: Parser [(Q.Col, Ex)]
-columns' = do
-  headCol <- column
-  tailCols <- (lex0 (char ',') >> columns') <|> return empty
-  return $ headCol : tailCols
-
-column :: Parser (Q.Col, Ex)
-column =  try (parseEx >>= asColumn) <|> ((\n -> (n, Var n)) <$> colName)
-
-asColumn :: Ex -> Parser (Q.Col, Ex)
-asColumn ex = fmap (, ex) asName
-
-asName :: Parser Q.Col
-asName = lex1 (string' "AS") *> colName
-
-colName :: Parser Q.Col
-colName = pack <$> lex0 (some (alphaNumChar <|> char '_'))
-
-pFrom :: Parser Q.From
-pFrom = Q.From <$> (lex1 (string' "FROM") *> tableName)
-
-tableName :: Parser Q.Table
-tableName = pack <$> lex1 (some (alphaNumChar <|> char '_' <|> char '-' <|> char '/'))
-
-pWhere :: Parser Q.Where
-pWhere = Q.Where <$> (lex1 (string' "WHERE") *> parseEx)
+lex1 :: Parser a -> Parser a
+lex1 = L.lexeme space1
