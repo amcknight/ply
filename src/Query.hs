@@ -57,10 +57,6 @@ toElem csvRow ex =
     Just _ -> throw $ TypeCheckException $ pack $ "Evaluation Error: " ++ show ex
     Nothing -> throw $ TypeCheckException $ pack $ "Failed to Evaluate SELECT expression: " ++ show ex
 
-
---selectionCols :: Query -> [Col]
---selectionCols query = concat $ vars <$> selection query
-
 table :: Query -> Text
 table (Query _ (From t) _) = t
 
