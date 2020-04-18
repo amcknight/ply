@@ -1,5 +1,5 @@
 name:                csvsql
-version:             0.0.6.1
+version:             0.0.7
 github:              "amcknight/csvsql"
 license:             BSD3
 author:              "Andrew McKnight"
@@ -10,10 +10,6 @@ extra-source-files:
 - README.md
 - ChangeLog.md
 
-# Metadata used when publishing your package
-# synopsis: Run SQL queries on raw CSVs
-# category: ?
-
 description:         Please see the README on GitHub at <https://github.com/amcknight/csvsql#readme>
 
 dependencies:
@@ -22,6 +18,7 @@ dependencies:
 - cassava
 - vector
 - split
+- containers
 - ordered-containers
 - text
 - megaparsec

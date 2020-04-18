@@ -8,7 +8,8 @@ module Element
   ) where
 
 import Data.Text (Text)
-import Data.Map.Ordered as O (OMap, empty, assocs, fromList)
+import Data.Map.Ordered as O (OMap, empty)
+import Utils (omap)
 
 data Elem = SElem Text | IElem Int | BElem Bool deriving (Eq, Show)
 
@@ -23,7 +24,7 @@ instance Show TCol where
 type TRow = OMap Text TCol
 
 tableType :: Row -> TRow
-tableType row = O.fromList $ fmap (\(k, v) -> (k, colType v)) (O.assocs row)
+tableType = omap colType
 
 colType :: Elem -> TCol
 colType (SElem _) = SCol

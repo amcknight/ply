@@ -6,7 +6,7 @@ module CsvSql
 
 import Data.ByteString.Lazy as B (ByteString, readFile)
 import Data.Text as T (Text, unlines, takeEnd, unpack, pack)
-import Query (Query, table, condition)
+import Query (Query, table, condition, selection, Selection(..))
 import Expression (checkEx, ExError, Ex(LitB))
 import Loader (loadCsv)
 import Runner (run)
@@ -39,21 +39,32 @@ loadCsvAndProcess :: Query -> ByteString -> Text
 loadCsvAndProcess query csvData =
   case loadCsv csvData of
     Left err -> err
-    Right rows -> checkWhereAndProcess query rows
+    Right rows -> checkAndProcess query rows
 
-checkWhereAndProcess :: Query -> [Row] -> Text
-checkWhereAndProcess query = checkExAndProcess query ex
+checkAndProcess :: Query -> [Row] -> Text
+checkAndProcess query = checkWhereExAndProcess query ex
   where ex = fromMaybe (LitB True) (condition query)
 
-checkExAndProcess :: Query -> Ex -> [Row] -> Text
-checkExAndProcess query ex rows =
-  case typeCheck ex rows of
+checkWhereExAndProcess :: Query -> Ex -> [Row] -> Text
+checkWhereExAndProcess query ex rows =
+  case typeCheck ex (head rows) of
     Left err -> (pack . show) err
-    Right BCol -> process query rows
+    Right BCol -> checkSelectExAndProcess query rows
     Right t -> typeCheckException t
 
-typeCheck :: Ex -> [Row] -> Either ExError TCol
-typeCheck ex = checkEx ex . tableType . head
+checkSelectExAndProcess :: Query -> [Row] -> Text
+checkSelectExAndProcess query rows =
+  case selection query of
+    All -> process query rows
+    RowEx r -> case traverse (checkSelCol (head rows)) r of
+      Left err -> (pack . show) err
+      Right _ -> process query rows
+
+checkSelCol :: Row -> Ex -> Either ExError TCol
+checkSelCol row ex = typeCheck ex row
+
+typeCheck :: Ex -> Row -> Either ExError TCol
+typeCheck ex = checkEx ex . tableType
 
 typeCheckException :: TCol -> Text
 typeCheckException t =

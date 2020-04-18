@@ -1,0 +1,3 @@
+Type Error in Not (Var "age")
+              ^^^^^^^^^^^^^^^
+Expected Boolean but found Integer

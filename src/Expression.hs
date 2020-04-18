@@ -18,6 +18,7 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Exception.Base (Exception)
 import Control.Monad.Combinators.Expr
 import Data.Map.Ordered as O (lookup)
+import qualified Data.Set as S (Set, empty, fromList, toList)
 
 data ExError = MissingColumnError Text
              -- Offending Expression, Expected Type, Actual Type
@@ -57,14 +58,16 @@ data Ex = Var Text
         | Cat Ex Ex
         deriving (Show, Eq)
 
+-- TODO: Duplicated in Parser under colName. Should bring together in a common col/var/header module
 pVar :: Parser Ex
 pVar = Var . pack <$> lex0 (some (alphaNumChar <|> char '_'))
 
-toLitB :: Text -> Ex
-toLitB "False" = LitB False
-toLitB "True" = LitB True
 pLitB :: Parser Ex
-pLitB = toLitB <$> lex0 (string "True" <|> string "False")
+pLitB = true <|> false
+true :: Parser Ex
+true = LitB True <$ lex0 (string "True")
+false :: Parser Ex
+false = LitB False <$ lex0 (string "False")
 
 pLitI :: Parser Ex
 pLitI = LitI <$> lex0 L.decimal
@@ -86,8 +89,9 @@ ops =
     ]
   , [ InfixL (Cat <$ lex0 (string "++"))
     ]
+  , [ InfixL (Mul <$ lex0 (string "*"))
+    ]
   , [ InfixL (Add <$ lex0 (string "+"))
-    , InfixL (Mul <$ lex0 (string "*"))
     ]
   , [ InfixL (LtE <$ lex0 (string "<="))
     , InfixL (GtE <$ lex0 (string ">="))
