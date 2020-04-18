@@ -16,7 +16,7 @@ import Loader (loadCsv)
 import Runner (run)
 import Parser (parse)
 import Element.Elem (ElemT(BElemT))
-import Table (Table, types)
+import Table.Table (Table, types)
 import Data.Maybe (fromMaybe)
 
 parseAndProcess :: Text -> IO Text

@@ -4,8 +4,8 @@ module Expression.Eval
   ) where
 
 import Expression.Expr
-import Table (Row)
-import Element.Elem (Elem(..))
+import Table.Row
+import Element.Elem
 import Data.Text
 import Data.Map.Ordered as O (lookup)
 import Control.Exception.Base (throw, Exception)

@@ -8,7 +8,8 @@ import Data.Map.Ordered (fromList)
 import Data.Csv (decode, HasHeader(..))
 import Data.Text (Text, pack, strip)
 import Element.Parse
-import Table (Table(..), Row, empty, buildTable)
+import Table.Table (Table(..), empty, buildTable)
+import Table.Row (Row)
 
 type Rec = [Text]
 
@@ -23,8 +24,8 @@ extract [] = empty
 extract (header:recs) = extractRows (fmap strip header) recs
 
 extractRows :: Rec -> [Rec] -> Table
-extractRows header vals = buildTable rows
-  where rows = fmap (extractRow header) vals
+extractRows header vals = buildTable rs
+  where rs = fmap (extractRow header) vals
 
 -- Csv Header -> Csv Value -> Output Row
 extractRow :: Rec -> Rec -> Row

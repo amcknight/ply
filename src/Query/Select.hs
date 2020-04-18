@@ -13,7 +13,7 @@ import Element.Elem
 import Expression.Expr
 import Expression.Parse
 import Data.Map.Ordered (OMap)
-import Table (Row)
+import Table.Row (Row)
 import Utils (omap)
 import Expression.Eval (evalEx)
 import Text.Megaparsec hiding (State)

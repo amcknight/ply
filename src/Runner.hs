@@ -5,7 +5,8 @@ module Runner
 import Query.Query
 import Query.Select
 import Query.Where
-import Table (Row, Table, rows, buildTable)
+import Table.Table (Table, rows, buildTable)
+import Table.Row
 import Expression.Eval (isTrue)
 
 run :: Query -> Table -> Table

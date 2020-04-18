@@ -3,7 +3,7 @@ module Expression.Check
   , ExError
   ) where
 
-import Table
+import Table.Row (RowT)
 import Expression.Expr
 import Data.Map.Ordered as O (lookup)
 import Element.Elem
@@ -29,7 +29,7 @@ buildTypeErrorMsg e ec ac msg =
   where errMsg = show e
         carets = replicate (length msg) ' ' ++ replicate (length errMsg) '^'
 
-checkEx :: Ex -> TRow -> Either ExError ElemT
+checkEx :: Ex -> RowT -> Either ExError ElemT
 checkEx (Var v) rt =
   case O.lookup v rt of
     Just t -> Right t
