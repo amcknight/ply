@@ -12,10 +12,10 @@ import Name
 import Parser
 import Element.Elem
 import Expression.Expr
+import Expression.Eval
 import Expression.Parse
 import Table.Row (Row)
 import Table.Utils (omap)
-import Expression.Eval (evalEx)
 import Data.Map.Ordered (OMap)
 import Text.Megaparsec hiding (State)
 import Text.Megaparsec.Char (char, string')
