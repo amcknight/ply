@@ -8,7 +8,9 @@ import Data.Map.Ordered (fromList)
 import Data.Csv (decode, HasHeader(..))
 import Data.Text (Text, pack, strip)
 import Element (toElem)
-import Table (Table(..), Row, empty, tableType, buildTable)
+import Table (Table(..), Row, empty, buildTable)
+
+type Rec = [Text]
 
 loadCsv :: ByteString -> Either Text Table
 loadCsv csvData =
@@ -16,16 +18,16 @@ loadCsv csvData =
     Left err -> Left $ pack err
     Right recs -> Right $ extract $ deepToList recs
 
-extract :: [[Text]] -> Table
+extract :: [Rec] -> Table
 extract [] = empty
-extract (colNames:recs) = extractRows (fmap strip colNames) recs
+extract (header:recs) = extractRows (fmap strip header) recs
 
-extractRows :: [Text] -> [[Text]] -> Table
+extractRows :: Rec -> [Rec] -> Table
 extractRows header vals = buildTable rows
   where rows = fmap (extractRow header) vals
 
--- Csv Column Names -> Csv Row values -> Output Row
-extractRow :: [Text] -> [Text] -> Row
+-- Csv Header -> Csv Value -> Output Row
+extractRow :: Rec -> Rec -> Row
 extractRow header = fromList . zip header . fmap (toElem . strip)
 
 deepToList :: Vector (Vector a) -> [[a]]

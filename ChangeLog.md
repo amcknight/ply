@@ -1,7 +1,8 @@
 # Changelog for csvsql
 
 ## v0.0.8
-* Added Bool support in CSVs
+* Added Bool support in input tables
+* Added headers in output tables
 
 ## v0.0.7
 * SELECT Expressions
