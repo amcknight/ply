@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TupleSections #-}
 
 module Query.Select
   ( Select(..)
@@ -37,20 +36,25 @@ pSelect = Select <$> (lex1 (string' "SELECT") *> (star <|> columns))
 star :: Parser Selection
 star = All <$ lex1 (char '*')
 
-columns :: Parser Selection
-columns = RowEx . O.fromList <$> columns'
+data Column = Column Ex Name
 
-columns' :: Parser [(Name, Ex)]
+toPair :: Column -> (Name, Ex)
+toPair (Column e n) = (n, e)
+
+columns :: Parser Selection
+columns = RowEx . O.fromList . fmap toPair <$> columns'
+
+columns' :: Parser [Column]
 columns' = do
   headCol <- column
   tailCols <- (lex0 (char ',') >> columns') <|> return empty
   return $ headCol : tailCols
 
-column :: Parser (Name, Ex)
-column =  try (parseEx >>= asColumn) <|> ((\n -> (n, Var n)) <$> pName)
+column :: Parser Column
+column = try (parseEx >>= asColumn) <|> (toColumn <$> pName)
 
-asColumn :: Ex -> Parser (Name, Ex)
-asColumn ex = fmap (, ex) asName
+toColumn :: Name -> Column
+toColumn n = Column (Var n) n
 
-asName :: Parser Name
-asName = lex1 (string' "AS") *> pName
+asColumn :: Ex -> Parser Column
+asColumn e = fmap (Column e) asName

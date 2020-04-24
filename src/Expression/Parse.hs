@@ -11,10 +11,10 @@ import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators.Expr
 import Data.Text (pack)
+import Name (pName)
 
--- TODO: Duplicated in Parser under colName. Should bring together in a common col/var/header module
 pVar :: Parser Ex
-pVar = Var . pack <$> lex0 (some (alphaNumChar <|> char '_'))
+pVar = Var <$> pName
 
 pLitB :: Parser Ex
 pLitB = true <|> false

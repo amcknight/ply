@@ -34,7 +34,7 @@ csvPath query =
   if takeEnd 4 fromPath == csvExtension
     then fromPath
     else fromPath <> csvExtension
-  where From fromPath = from query
+  where From (TableName fromPath _) = from query
         csvExtension = ".csv"
 
 loadCsvAndProcess :: Query -> ByteString -> Text
