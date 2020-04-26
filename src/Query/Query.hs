@@ -1,14 +1,14 @@
 module Query.Query
   ( Query(..)
-  , pQuery
   , parse
   ) where
 
 import Query.Select
 import Query.From
 import Query.Where
+import Query.RawQuery
 import Parser
-import Text.Megaparsec (runParser, eof, optional, errorBundlePretty)
+import Text.Megaparsec (runParser, eof, errorBundlePretty)
 import Data.Text
 
 data Query = Query
@@ -17,11 +17,21 @@ data Query = Query
   , mWhere :: Maybe Where
   } deriving (Show, Eq)
 
+-- TODO: Can this be improved with <*> ?
 parse :: Text -> Either Text Query
 parse query =
-  case runParser (pQuery <* eof) "SQL Query Parser" query of
+  case runParser (pRawQuery <* eof) "" query of
     Left errorBundle -> Left $ pack $ errorBundlePretty errorBundle
-    Right q -> Right q
+    Right rq -> case transQuery rq of
+      Left errorBundle -> Left $ pack $ errorBundlePretty errorBundle
+      Right q -> Right q
 
-pQuery :: Parser Query
-pQuery = Query <$> pSelect <*> pFrom <*> optional pWhere
+transQuery :: RawQuery -> Either ParserError Query
+transQuery (RawQuery rs rf mrw) = do
+  f@(From (TableName _ tn)) <- runParser pFrom "" rf
+  s <- runParser (pSelect tn) "" rs
+  case mrw of
+    Nothing -> return $ Query s f Nothing
+    Just rw -> do
+      w <- runParser (pWhere tn) "" rw
+      return $ Query s f (Just w)

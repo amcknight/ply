@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Query.Where
   ( Where(..)
   , pWhere
@@ -7,10 +5,10 @@ module Query.Where
 
 import Expression.Expr
 import Expression.Parse
-import Text.Megaparsec.Char (string')
-import Parser (Parser, lex1)
+import Parser
+import Data.Text (Text)
 
 newtype Where = Where Ex deriving (Show, Eq)
 
-pWhere :: Parser Where
-pWhere = Where <$> (lex1 (string' "WHERE") *> parseEx)
+pWhere :: Text -> Parser Where
+pWhere tName = Where <$> parseEx tName

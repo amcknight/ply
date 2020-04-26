@@ -1,6 +1,0 @@
-SQL Query Parser:1:10:
-  |
-1 | SELECT 2 + 3
-  |          ^^^^
-unexpected "+ 3<newline>"
-expecting "FROM", ',', or white space

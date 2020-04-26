@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Query.Select
   ( Select(..)
   , Selection(..)
@@ -17,8 +15,9 @@ import Table.Row (Row)
 import Table.Utils (omap)
 import Data.Map.Ordered (OMap)
 import Text.Megaparsec hiding (State)
-import Text.Megaparsec.Char (char, string')
+import Text.Megaparsec.Char (char)
 import Data.Map.Ordered as O (fromList)
+import Data.Text (Text)
 
 data Selection = All | RowEx (OMap Name Ex) deriving (Show, Eq)
 newtype Select = Select Selection deriving (Show, Eq)
@@ -30,31 +29,31 @@ evalSel (Select (RowEx rs)) csvRow = omap (evalRow csvRow) rs
 evalRow :: Row -> Ex -> Elem
 evalRow csvRow ex = evalEx ex csvRow
 
-pSelect :: Parser Select
-pSelect = Select <$> (lex1 (string' "SELECT") *> (star <|> columns))
+pSelect :: Text -> Parser Select
+pSelect tName = Select <$> (pStar <|> pColumns tName)
 
-star :: Parser Selection
-star = All <$ lex1 (char '*')
+pStar :: Parser Selection
+pStar = All <$ lex1 (char '*')
 
-data Column = Column Ex Name
+data Column = Column Ex Name deriving Show
 
 toPair :: Column -> (Name, Ex)
 toPair (Column e n) = (n, e)
 
-columns :: Parser Selection
-columns = RowEx . O.fromList . fmap toPair <$> columns'
+pColumns :: Text -> Parser Selection
+pColumns tName = RowEx . O.fromList . fmap toPair <$> pColumns' tName
 
-columns' :: Parser [Column]
-columns' = do
-  headCol <- column
-  tailCols <- (lex0 (char ',') >> columns') <|> return empty
+pColumns' :: Text -> Parser [Column]
+pColumns' tName = do
+  headCol <- pColumn tName
+  tailCols <- (lex0 (char ',') >> pColumns' tName) <|> return empty
   return $ headCol : tailCols
 
-column :: Parser Column
-column = try (parseEx >>= asColumn) <|> (toColumn <$> pName)
+pColumn :: Text -> Parser Column
+pColumn tName = try (parseEx tName >>= pAsColumn tName) <|> (toColumn <$> pName tName)
+
+pAsColumn :: Text -> Ex -> Parser Column
+pAsColumn tName e = fmap (Column e) (asName tName)
 
 toColumn :: Name -> Column
 toColumn n = Column (Var n) n
-
-asColumn :: Ex -> Parser Column
-asColumn e = fmap (Column e) asName

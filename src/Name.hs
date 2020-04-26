@@ -4,6 +4,7 @@ module Name
   ( Name(..)
   , pName
   , asName
+  , asNameText
   ) where
 
 import Data.Text (Text, pack, unpack)
@@ -12,16 +13,30 @@ import Text.Megaparsec hiding (State)
 import Text.Megaparsec.Char (char, alphaNumChar, string')
 
 data Name = Name
-  { space :: Maybe Text
+  { space :: Text
   , name :: Text
   } deriving (Eq, Ord)
 
 instance Show Name where
-  show (Name Nothing  n) = unpack n
-  show (Name (Just s) n) = unpack s ++ "." ++ unpack n
+  show (Name s n) = unpack s ++ "." ++ unpack n
 
-pName :: Parser Name
-pName = Name Nothing . pack <$> lex0 (some (alphaNumChar <|> char '_'))
+pName :: Text -> Parser Name
+pName tName = try pNameSpace <|> pNameNoSpace tName
 
-asName :: Parser Name
-asName = lex1 (string' "AS") *> pName
+pNameSpace :: Parser Name
+pNameSpace = do
+  p1 <- pText
+  p2 <- char '.' *> pText
+  return $ Name p1 p2
+
+pNameNoSpace :: Text -> Parser Name
+pNameNoSpace tName = Name tName <$> pText
+
+pText :: Parser Text
+pText = pack <$> lex0 (some (alphaNumChar <|> char '_'))
+
+asName :: Text -> Parser Name
+asName tName = Name tName <$> asNameText
+
+asNameText :: Parser Text
+asNameText = lex1 (string' "AS") *> pText
