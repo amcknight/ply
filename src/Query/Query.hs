@@ -28,10 +28,10 @@ parse query =
 
 transQuery :: RawQuery -> Either ParserError Query
 transQuery (RawQuery rs rf mrw) = do
-  f@(From (TableName _ tn)) <- runParser pFrom "" rf
-  s <- runParser (pSelect tn) "" rs
+  f@(From (TableName _ tn)) <- runParser (pFrom <* eof) "" rf
+  s <- runParser (pSelect tn <* eof) "" rs
   case mrw of
     Nothing -> return $ Query s f Nothing
     Just rw -> do
-      w <- runParser (pWhere tn) "" rw
+      w <- runParser (pWhere tn <* eof) "" rw
       return $ Query s f (Just w)
