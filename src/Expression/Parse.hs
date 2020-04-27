@@ -5,16 +5,16 @@ module Expression.Parse
   ) where
 
 import Expression.Expr (Ex(..))
-import Parser (Parser, lex0)
+import Parser (Parser, lex0, lex1)
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators.Expr
-import Data.Text (pack)
+import Data.Text (Text, pack)
+import Name (pName)
 
--- TODO: Duplicated in Parser under colName. Should bring together in a common col/var/header module
-pVar :: Parser Ex
-pVar = Var . pack <$> lex0 (some (alphaNumChar <|> char '_'))
+pVar :: Text -> Parser Ex
+pVar tName = Var <$> pName tName
 
 pLitB :: Parser Ex
 pLitB = true <|> false
@@ -29,12 +29,12 @@ pLitI = LitI <$> lex0 L.decimal
 pLitS :: Parser Ex
 pLitS = LitS . pack <$> lex0 (char '"' >> manyTill L.charLiteral (char '"'))
 
-pTerm :: Parser Ex
-pTerm = choice
+pTerm :: Text -> Parser Ex
+pTerm tName = choice
   [ pLitB
   , pLitI
   , pLitS
-  , pVar
+  , pVar tName
   ]
 
 ops :: [[Operator Parser Ex]]
@@ -61,5 +61,5 @@ ops =
     ]
   ]
 
-parseEx :: Parser Ex
-parseEx = makeExprParser pTerm ops
+parseEx :: Text -> Parser Ex
+parseEx tName = makeExprParser (pTerm tName) ops

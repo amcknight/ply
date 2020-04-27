@@ -1,20 +1,24 @@
 module Table.Row
   ( Row
   , RowT
+  , buildRow
   , toMsg
   , Table.Row.getType
   , empty
   , emptyT
   ) where
 
-import Data.Text as T (Text)
-import qualified Data.Map.Ordered as O (OMap, empty)
+import qualified Data.Map.Ordered as O (OMap, empty, fromList)
 import Element.Elem as E
-import Data.List (intercalate)
 import Table.Utils (omap, ovals)
+import Name (Name)
+import Data.List (intercalate)
 
-type Row = O.OMap Text Elem
-type RowT = O.OMap Text ElemT
+type Row = O.OMap Name Elem
+type RowT = O.OMap Name ElemT
+
+buildRow :: [Name] -> [Elem] -> Row
+buildRow header elems = O.fromList $ zip header elems
 
 getType :: Row -> RowT
 getType = omap E.getType

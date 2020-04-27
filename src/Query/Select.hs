@@ -1,6 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TupleSections #-}
-
 module Query.Select
   ( Select(..)
   , Selection(..)
@@ -18,8 +15,9 @@ import Table.Row (Row)
 import Table.Utils (omap)
 import Data.Map.Ordered (OMap)
 import Text.Megaparsec hiding (State)
-import Text.Megaparsec.Char (char, string')
+import Text.Megaparsec.Char (char)
 import Data.Map.Ordered as O (fromList)
+import Data.Text (Text)
 
 data Selection = All | RowEx (OMap Name Ex) deriving (Show, Eq)
 newtype Select = Select Selection deriving (Show, Eq)
@@ -31,26 +29,31 @@ evalSel (Select (RowEx rs)) csvRow = omap (evalRow csvRow) rs
 evalRow :: Row -> Ex -> Elem
 evalRow csvRow ex = evalEx ex csvRow
 
-pSelect :: Parser Select
-pSelect = Select <$> (lex1 (string' "SELECT") *> (star <|> columns))
+pSelect :: Text -> Parser Select
+pSelect tName = Select <$> (pStar <|> pColumns tName)
 
-star :: Parser Selection
-star = All <$ lex1 (char '*')
+pStar :: Parser Selection
+pStar = All <$ lex1 (char '*')
 
-columns :: Parser Selection
-columns = RowEx . O.fromList <$> columns'
+data Column = Column Ex Name deriving Show
 
-columns' :: Parser [(Name, Ex)]
-columns' = do
-  headCol <- column
-  tailCols <- (lex0 (char ',') >> columns') <|> return empty
+toPair :: Column -> (Name, Ex)
+toPair (Column e n) = (n, e)
+
+pColumns :: Text -> Parser Selection
+pColumns tName = RowEx . O.fromList . fmap toPair <$> pColumns' tName
+
+pColumns' :: Text -> Parser [Column]
+pColumns' tName = do
+  headCol <- pColumn tName
+  tailCols <- (lex0 (char ',') >> pColumns' tName) <|> return empty
   return $ headCol : tailCols
 
-column :: Parser (Name, Ex)
-column =  try (parseEx >>= asColumn) <|> ((\n -> (n, Var n)) <$> pName)
+pColumn :: Text -> Parser Column
+pColumn tName = try (parseEx tName >>= pAsColumn tName) <|> (toColumn <$> pName tName)
 
-asColumn :: Ex -> Parser (Name, Ex)
-asColumn ex = fmap (, ex) asName
+pAsColumn :: Text -> Ex -> Parser Column
+pAsColumn tName e = fmap (Column e) (asName tName)
 
-asName :: Parser Name
-asName = lex1 (string' "AS") *> pName
+toColumn :: Name -> Column
+toColumn n = Column (Var n) n

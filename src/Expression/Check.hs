@@ -8,9 +8,10 @@ import Expression.Expr
 import Data.Map.Ordered as O (lookup)
 import Element.Elem
 import Control.Exception.Base (Exception)
-import Data.Text (Text, unpack)
+import Data.Text (unpack)
+import Name
 
-data ExError = MissingColumnError Text
+data ExError = MissingColumnError Name
              -- Offending Expression, Expected Type, Actual Type
              | TypeError      Ex ElemT ElemT
              | TypeErrorLeft  Ex ElemT ElemT
@@ -18,7 +19,7 @@ data ExError = MissingColumnError Text
 
 instance Exception ExError
 instance Show ExError where
-  show (MissingColumnError name) = "Missing column: " ++ unpack name
+  show (MissingColumnError n) = "Missing column: " ++ unpack (name n)
   show (TypeError      e ec ac) = buildTypeErrorMsg e ec ac "Type Error in "
   show (TypeErrorLeft  e ec ac) = buildTypeErrorMsg e ec ac "Type Error in left argument of "
   show (TypeErrorRight e ec ac) = buildTypeErrorMsg e ec ac "Type Error in right argument of "

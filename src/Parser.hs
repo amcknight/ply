@@ -1,5 +1,6 @@
 module Parser
   ( Parser
+  , ParserError
   , lex0
   , lex1
   ) where
@@ -11,6 +12,7 @@ import Text.Megaparsec.Char (space, space1)
 import qualified Text.Megaparsec.Char.Lexer as L
 
 type Parser = Parsec Void Text
+type ParserError = ParseErrorBundle Text Void
 
 lex0 :: Parser a -> Parser a
 lex0 = L.lexeme space

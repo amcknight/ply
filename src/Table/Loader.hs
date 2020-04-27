@@ -3,33 +3,29 @@ module Table.Loader
   ) where
 
 import Data.ByteString.Lazy (ByteString)
-import Data.Vector (Vector, toList)
 import Data.Map.Ordered (fromList)
 import Data.Csv (decode, HasHeader(..))
 import Data.Text (Text, pack, strip)
 import Element.Parse
 import Table.Table (Table(..), empty, buildTable)
 import Table.Row (Row)
+import Table.Rec
+import Name
 
-type Rec = [Text]
-
-loadCsv :: ByteString -> Either Text Table
-loadCsv csvData =
+loadCsv :: Text -> ByteString -> Either Text Table
+loadCsv tName csvData =
   case decode NoHeader csvData of
-    Left err -> Left $ pack err
-    Right recs -> Right $ extract $ deepToList recs
+    Left err -> (Left . pack) err
+    Right ls -> (Right . extract tName . toRecs) ls
 
-extract :: [Rec] -> Table
-extract [] = empty
-extract (header:recs) = extractRows (fmap strip header) recs
+extract :: Text -> [Rec] -> Table
+extract _ [] = empty
+extract tName (header:recs) = extractRows tName (fmap strip header) recs
 
-extractRows :: Rec -> [Rec] -> Table
-extractRows header vals = buildTable rs
-  where rs = fmap (extractRow header) vals
+extractRows :: Text -> Rec -> [Rec] -> Table
+extractRows tName header vals = buildTable rs
+  where rs = fmap (extractRow tName header) vals
 
 -- Csv Header -> Csv Value -> Output Row
-extractRow :: Rec -> Rec -> Row
-extractRow header = fromList . zip header . fmap (toElem . strip)
-
-deepToList :: Vector (Vector a) -> [[a]]
-deepToList = toList . fmap toList
+extractRow :: Text -> Rec -> Rec -> Row
+extractRow tName header = fromList . zip (Name tName <$> header) . fmap (toElem . strip)

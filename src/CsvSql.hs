@@ -26,7 +26,8 @@ parseAndProcess input =
 
 readAndProcess :: Query -> IO Text
 readAndProcess query = do
-  csvData <- (B.readFile . unpack . csvPath) query
+  let fullPath = csvPath query
+  csvData <- (B.readFile . unpack) fullPath
   pure $ loadCsvAndProcess query csvData
 
 csvPath :: Query -> Text
@@ -34,14 +35,15 @@ csvPath query =
   if takeEnd 4 fromPath == csvExtension
     then fromPath
     else fromPath <> csvExtension
-  where From fromPath = from query
+  where From (TableName fromPath _) = from query
         csvExtension = ".csv"
 
 loadCsvAndProcess :: Query -> ByteString -> Text
 loadCsvAndProcess query csvData =
-  case loadCsv csvData of
+  case loadCsv tName csvData of
     Left err -> err
     Right rows -> checkAndProcess query rows
+  where From (TableName _ tName) = from query
 
 checkAndProcess :: Query -> Table -> Text
 checkAndProcess query = checkWhereExAndProcess query ex

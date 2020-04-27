@@ -1,21 +1,30 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Query.From
   ( From(..)
-  , TableName
+  , TableName(..)
   , pFrom
   ) where
 
+import Name
 import Text.Megaparsec hiding (State)
-import Text.Megaparsec.Char (char, string', alphaNumChar)
-import Data.Text (Text, pack)
+import Text.Megaparsec.Char (char, alphaNumChar)
+import Data.Text (Text, pack, unpack)
 import Parser (Parser, lex1)
+import System.FilePath (takeBaseName)
 
-type TableName = Text
-newtype From = From Text deriving (Show, Eq)
+data TableName = TableName
+  { path :: Text
+  , name :: Text
+  } deriving (Show, Eq)
+newtype From = From TableName deriving (Show, Eq)
 
 pFrom :: Parser From
-pFrom = From <$> (lex1 (string' "FROM") *> tableName)
+pFrom = From <$> tableName
 
 tableName :: Parser TableName
-tableName = pack <$> lex1 (some (alphaNumChar <|> char '_' <|> char '-' <|> char '/'))
+tableName = do
+  p <- pPath
+  a <- try asNameText <|> (pure . pack . takeBaseName . unpack) p
+  return $ TableName p a
+
+pPath :: Parser Text
+pPath = pack <$> lex1 (some (alphaNumChar <|> char '_' <|> char '-' <|> char '/'))

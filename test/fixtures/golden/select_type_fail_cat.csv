@@ -1,3 +1,3 @@
-Type Error in left argument of Cat (Var "age") (LitI 3)
-                               ^^^^^^^^^^^^^^^^^^^^^^^^
+Type Error in left argument of Cat (Var people.age) (LitI 3)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Expected String but found Integer

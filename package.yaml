@@ -23,6 +23,7 @@ dependencies:
 - text
 - megaparsec
 - parser-combinators
+- filepath
 
 library:
   source-dirs: src
@@ -49,7 +50,6 @@ tests:
     dependencies:
     - csvsql
     - utf8-string
-    - filepath
     - tasty
     - tasty-hunit
     - tasty-golden

@@ -3,8 +3,9 @@ module Expression.Expr
   ) where
 
 import Data.Text (Text)
+import Name (Name)
 
-data Ex = Var Text
+data Ex = Var Name
         | LitB Bool
         | LitI Int
         | LitS Text

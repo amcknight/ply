@@ -1,11 +1,17 @@
-# Changelog for csvsql
+# Change Log for csvsql
 
-## v0.0.8
+### v0.1.1
+* AS and table-based namespacing support in preparation for multiple tables
+
+## v0.1
+* Generic SELECT FROM WHERE queries on single tables
+
+### v0.0.8
 * Added Bool support in input tables
 * Added headers in output tables
 * Factoring and code cleanup in prep of v0.1
 
-## v0.0.7
+### v0.0.7
 * SELECT Expressions
 * SELECT AS
 * SELECT Expression type checking
