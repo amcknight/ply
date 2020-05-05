@@ -1,7 +1,8 @@
-# Change Log for csvsql
+# Change Log for ply
 
 ### v0.1.1
 * AS and table-based namespacing support in preparation for multiple tables
+* Change name from csvsql to ply
 
 ## v0.1
 * Generic SELECT FROM WHERE queries on single tables
