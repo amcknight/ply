@@ -13,7 +13,7 @@ import Control.Exception.Base (throw, Exception)
 newtype EvalError = EvalError Ex
 instance Exception EvalError
 instance Show EvalError where
-  show (EvalError e) = "Evaluation Error. Type checking should prevent this.Expression:\n" ++ show e
+  show (EvalError e) = "Evaluation Error. Type checking should prevent this. Expression:\n" ++ show e
 
 isTrue :: Ex -> Row -> Bool
 isTrue ex row = eval ex row == LitB True

@@ -1,4 +1,4 @@
-# Roadmap for csvsql
+# Roadmap for ply
 Subject to drastic changes
 
 ## v0.2
