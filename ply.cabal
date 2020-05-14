@@ -1,0 +1,115 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 7452cc97fb62e29d241fe5f737bc022e35c6c13f0efe453d3e11e9f035a6a8e5
+
+name:           ply
+version:        0.1.0
+description:    Please see the README on GitHub at <https://github.com/amcknight/ply#readme>
+homepage:       https://github.com/amcknight/ply#readme
+bug-reports:    https://github.com/amcknight/ply/issues
+author:         Andrew McKnight
+maintainer:     thedonk@gmail.com
+copyright:      2019-2020 Andrew McKnight
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/amcknight/ply
+
+library
+  exposed-modules:
+      CsvSql
+      Element.Elem
+      Element.Parse
+      Expression.Check
+      Expression.Eval
+      Expression.Expr
+      Expression.Parse
+      Name
+      Parser
+      Query.From
+      Query.Query
+      Query.RawQuery
+      Query.Select
+      Query.Where
+      Runner
+      Table.Loader
+      Table.Rec
+      Table.Row
+      Table.Table
+      Table.Utils
+  other-modules:
+      Paths_ply
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , cassava
+    , containers
+    , filepath
+    , megaparsec
+    , ordered-containers
+    , parser-combinators
+    , split
+    , text
+    , vector
+  default-language: Haskell2010
+
+executable ply
+  main-is: Main.hs
+  other-modules:
+      Paths_ply
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , cassava
+    , containers
+    , filepath
+    , megaparsec
+    , ordered-containers
+    , parser-combinators
+    , ply
+    , split
+    , text
+    , vector
+  default-language: Haskell2010
+
+test-suite ply-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_ply
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , cassava
+    , containers
+    , filepath
+    , megaparsec
+    , ordered-containers
+    , parser-combinators
+    , ply
+    , split
+    , tasty
+    , tasty-golden
+    , tasty-hunit
+    , text
+    , utf8-string
+    , vector
+  default-language: Haskell2010
